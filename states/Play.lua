@@ -1101,7 +1101,6 @@ function PlayState:popUpScore(note)
     rating.velocity.y = rating.velocity.y - love.math.random(140, 175) * self.playbackRate
     rating.velocity.x = love.math.random(0, 10) * self.playbackRate
 
-    -- todo. investigate why shit doesn't get removed
     table.insert(self.members, table.indexOf(self.members, self.strumLineNotes), rating)
 
     if not PlayState.isPixelStage then
@@ -1145,13 +1144,14 @@ function PlayState:popUpScore(note)
         numScore.velocity.y = numScore.velocity.y - love.math.random(140, 160) * self.playbackRate
         numScore.velocity.x = love.math.random(-5, -5) * self.playbackRate
 
-        -- todo. investigate why shit doesn't get removed
-        --table.insert(self.members, table.indexOf(self.members, self.strumLineNotes), numScore)
+        table.insert(self.members, table.indexOf(self.members, self.strumLineNotes), numScore)
 
         Timer.after(Conductor.crochet * 0.002 / self.playbackRate, function()
             Timer.tween(0.2/self.playbackRate, numScore, {alpha = 0}, "linear", function() 
+                numScore.alpha = 0
+                numScore.alive = false
+                numScore.exists = false
                 self:remove(numScore)
-                numScore = nil
             end)
         end)
 
@@ -1161,10 +1161,13 @@ function PlayState:popUpScore(note)
         end
     end
 
-    Timer.after(Conductor.crochet * 0.002 / self.playbackRate, function()
+    Timer.after(Conductor.crochet * 0.001 / self.playbackRate, function()
         Timer.tween(0.2/self.playbackRate, rating, {alpha = 0}, "linear", function() 
-            self:remove(rating)
-            rating = nil
+            -- gross and weird hack, but it didn't work without this stuff?? idk i hate lua sometimes
+            rating.alpha = 0
+            rating.alive = false
+            rating.exists = false
+            PlayState:remove(rating)
         end)
     end)
 end
