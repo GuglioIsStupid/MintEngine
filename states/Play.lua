@@ -49,7 +49,7 @@ PlayState.storyWeek = 0
 PlayState.storyPlaylist = {}
 PlayState.storyDifficulty = 1
 
-PlayState.spawnTime = 2000
+PlayState.spawnTime = 1000
 
 PlayState.vocals = nil
 PlayState.inst = nil
@@ -274,8 +274,12 @@ function PlayState:add(member)
 end
 
 function PlayState:remove(member)
-    local index = table.indexOf(self.members, member)
-    if index then self.members[index] = nil end
+    for i, member in ipairs(self.members) do
+        if member == object then
+            table.remove(self.members, i)
+            return
+        end
+    end
 end
 
 function PlayState:insert(position, member)
@@ -437,63 +441,12 @@ function PlayState:enter()
     stage:createPost()
     Conductor.songPosition = -5000 / Conductor.songPosition
 
-    self.healthBar = {
-        img = Paths.image("healthBar"),
-        x = 0,
-        y = push:getHeight() * 0.89,
-        width = 0,
-        height = 0,
-        boundX = 0,
-        boundY = 2,
-        scrollFactor = {x=0, y=0},
-        leftToRight = false,
-        barLeftColor = hexToColor(0xFFFFFFFF),
-        barRightColor = hexToColor(0x00000000),
-        alpha = 1,
-        camera = self.camHUD,
-        valueFunction = function() 
-            return self.health < 0 and 0 or self.health > 2 and 2 or self.health
-        end,
-        percent = 0,
+    self:add(self.combos)
 
-        screenCenter = function(self, axis)
-            local axis = axis or "XY"
-            if axis:find("X") then
-                self.x = (push:getWidth() / 2) - (self.img:getWidth() / 2)
-            end
-            if axis:find("Y") then
-                self.y = (push:getHeight() / 2) - (self.img:getHeight() / 2)
-            end
-        end
-    }
-    self.healthBar.width = self.healthBar.img:getWidth()
-    self.healthBar.height = self.healthBar.img:getHeight()
-    self.healthBar.barCenter = 1
-
-    function self.healthBar:draw()
-        love.graphics.push()
-            if self.camera then
-                love.graphics.translate(push:getWidth()/2, push:getHeight()/2)
-                love.graphics.scale(self.camera.zoom, self.camera.zoom)
-                love.graphics.translate(-push:getWidth()/2, -push:getHeight()/2)
-            end
-            if self.leftToRight then
-                self.percent = self.valueFunction() / self.boundY
-            else
-                self.percent = 1 - (self.valueFunction() / self.boundY)
-            end
-            -- use NORMAL rectangles from love.graphics
-            love.graphics.setColor(self.barLeftColor[1] / 255, self.barLeftColor[2] / 255, self.barLeftColor[3] / 255, self.alpha)
-            love.graphics.rectangle("fill", self.x + 3, self.y + 3, self.width - 6, self.height - 6)
-            love.graphics.setColor(self.barRightColor[1] / 255, self.barRightColor[2] / 255, self.barRightColor[3] / 255, self.alpha)
-            love.graphics.rectangle("fill", self.x + 3, self.y + 3, (self.width-6) * self.percent, self.height - 3)
-            love.graphics.setColor(1, 1, 1, 1)
-            love.graphics.draw(self.img, self.x, self.y)
-
-            -- set self.barCenter to the percent rects position
-            self.barCenter = self.x + (self.width * self.percent)
-        love.graphics.pop()
-    end
+    self.healthBar = HealthBar(0, push:getHeight() * 0.89, "healthBar", 0, 2, false, function() 
+        return self.health < 0 and 0 or self.health > 2 and 2 or self.health
+    end)
+    self.healthBar.camera = self.camHUD
     self.healthBar:screenCenter("X")
     self:add(self.healthBar)
 
@@ -780,7 +733,7 @@ function PlayState:update(dt)
                     note:followStrumNote(strum, fakeCrochet, self.songSpeed)
 
                     if note.mustPress then
-                        if self.cpuControlled and not note.blockHit and note.canBeHit and (note.isSustainNote or note.strumTime <= Conductor.songPosition) then
+                        if self.cpuControlled and not note.blockHit and note.canBeHit and note.strumTime <= Conductor.songPosition then
                             self:goodNoteHit(note)
                         end
                     elseif note.wasGoodHit and not note.hitByOpponent and not note.ignoreNote and not (Conductor.songPosition <= 10) then
@@ -796,10 +749,13 @@ function PlayState:update(dt)
                             self:noteMiss(note)
                         end
 
+
                         note.active = false
                         note.visible = false
 
+                        note:kill()
                         self.notes:remove(note)
+                        note:destroy()
                     end
                 end
             end
@@ -816,7 +772,7 @@ function PlayState:update(dt)
                     note:followStrumNote(strum, fakeCrochet, self.songSpeed)
     
                     if note.mustPress then
-                        if self.cpuControlled and not note.blockHit and note.canBeHit and (note.isSustainNote or note.strumTime <= Conductor.songPosition) then
+                        if self.cpuControlled and not note.blockHit and note.canBeHit and note.isSustainNote then
                             self:goodNoteHit(note)
                         end
                     elseif note.wasGoodHit and not note.hitByOpponent and not note.ignoreNote then
@@ -835,7 +791,8 @@ function PlayState:update(dt)
                         note.active = false
                         note.visible = false
     
-                        self.notes:remove(note)
+                        self.sustainNotes:remove(note)
+                        print(#self.sustainNotes.members)
                     end
                 end
             end
@@ -970,7 +927,14 @@ end
 
 function PlayState:draw()
     for i, member in ipairs(self.members) do
-        member:draw()
+        if member.draw then
+            if member.class and member.class == "Sprite" then
+                if not (member.exists or member.alive or member.visible) then
+                    return
+                end
+            end
+            member:draw()
+        end
     end
 end
 
@@ -1012,7 +976,10 @@ function PlayState:opponentNoteHit(note)
     note.hitByOpponent = true
 
     if not note.isSustainNote then
+        note:kill()
         self.notes:remove(note)
+        note:destroy()
+        note = nil
     end
 end
 
@@ -1134,6 +1101,7 @@ function PlayState:popUpScore(note)
     rating.velocity.y = rating.velocity.y - love.math.random(140, 175) * self.playbackRate
     rating.velocity.x = love.math.random(0, 10) * self.playbackRate
 
+    -- todo. investigate why shit doesn't get removed
     table.insert(self.members, table.indexOf(self.members, self.strumLineNotes), rating)
 
     if not PlayState.isPixelStage then
@@ -1177,10 +1145,14 @@ function PlayState:popUpScore(note)
         numScore.velocity.y = numScore.velocity.y - love.math.random(140, 160) * self.playbackRate
         numScore.velocity.x = love.math.random(-5, -5) * self.playbackRate
 
-        table.insert(self.members, table.indexOf(self.members, self.strumLineNotes), numScore)
+        -- todo. investigate why shit doesn't get removed
+        --table.insert(self.members, table.indexOf(self.members, self.strumLineNotes), numScore)
 
         Timer.after(Conductor.crochet * 0.002 / self.playbackRate, function()
-            Timer.tween(0.2/self.playbackRate, numScore, {alpha = 0}, "linear", function() numScore = nil end)
+            Timer.tween(0.2/self.playbackRate, numScore, {alpha = 0}, "linear", function() 
+                self:remove(numScore)
+                numScore = nil
+            end)
         end)
 
         daLoop = daLoop + 1
@@ -1190,7 +1162,10 @@ function PlayState:popUpScore(note)
     end
 
     Timer.after(Conductor.crochet * 0.002 / self.playbackRate, function()
-        Timer.tween(0.2/self.playbackRate, rating, {alpha = 0}, "linear", function() rating = nil end)
+        Timer.tween(0.2/self.playbackRate, rating, {alpha = 0}, "linear", function() 
+            self:remove(rating)
+            rating = nil
+        end)
     end)
 end
 
@@ -1528,6 +1503,8 @@ function PlayState:createCountdownSprite(image, antialias)
     Timer.tween(Conductor.crochet / 1000, spr, {alpha = 0}, "in-out-cubic", function()
         spr.alpha = 0
         spr.visible = false
+        self:remove(spr)
+        spr = nil
     end)
 
     return spr
@@ -1668,7 +1645,10 @@ function PlayState:goodNoteHit(note)
         local leType = note.noteType
 
         if not note.isSustainNote then
+            note:kill()
             self.notes:remove(note)
+            note:destroy()
+            note = nil
         end
     end
 end

@@ -8,11 +8,12 @@ function love.load()
             note_down = {"key:down", "key:s", "axis:lefty+", "button:dpdown"},
 
             accept = {"key:return", "button:a"},
+            back = {"key:escape", "button:b"},
+
             ui_down = {"key:down", "button:dpdown"},
             ui_up = {"key:up", "button:dpup"},
             ui_left = {"key:left", "button:dpleft"},
             ui_right = {"key:right", "button:dpright"},
-            back = {"key:escape", "button:b"},
         },
         joystick = love.joystick.getJoysticks()[1],
     }
@@ -52,7 +53,7 @@ function love.load()
     BGSprite = require "objects.BGSprite"
 
     DialogueBox = require "cutscenes.DialogueBox"
-    --HealthBar = require "objects.HealthBar"
+    HealthBar = require "objects.HealthBar"
 
     Stages = {
         Stage = require "states.stages.stage",
@@ -112,5 +113,8 @@ function love.draw()
 
     -- print fps
     love.graphics.setColor(1, 1, 1, 1)
-    love.graphics.print("FPS: " .. love.timer.getFPS(), 10, 10)
+    love.graphics.print("FPS: " .. love.timer.getFPS() .. "\n" .. 
+                    "Memory: " .. math.floor(collectgarbage("count")) .. " KB" .. 
+                    "\nGraphics Memory: " .. math.floor(love.graphics.getStats().texturememory / 1024 / 1024) .. " MB" ..
+                    "\nDraw Calls: " .. love.graphics.getStats().drawcalls, 10, 10)
 end

@@ -45,6 +45,7 @@ local function change_state(stack_offset, to, ...)
 
 	stack[#stack+stack_offset] = to
 	state_is_dirty = true
+	collectgarbage()
 	return (to.enter or __NULL__)(to, pre, ...)
 end
 

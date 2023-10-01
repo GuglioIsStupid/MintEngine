@@ -62,6 +62,7 @@ function Sprite.NewFrame(name, x,y,w,h,sw,sh,ox,oy,ow,oh)
 end
 
 function Sprite:new(x, y, graphic)
+    self.class = "Sprite"
     self.x = x or 0
     self.y = y or 0
 
@@ -350,6 +351,33 @@ function Sprite:screenCenter(axis)
     if axis:find("Y") then
         self.y = (push:getHeight() - self.height) / 2
     end
+end
+
+function Sprite:kill()
+    self.alive = false
+    self.exists = false
+end
+
+function Sprite:revive()
+    self.alive = true
+    self.exists = true
+end
+
+function Sprite:destroy()
+    self.exists = false
+    self.graphic = nil
+
+    self.origin = {x = 0, y = 0}
+    self.offset = {x = 0, y = 0}
+    self.scale = {x = 1, y = 1}
+    
+    self.frames = nil
+    self.animations = nil
+    
+    self.curAnim = nil
+    self.curFrame = nil
+    self.animFinished = false
+    self.animPaused = false
 end
 
 function Sprite:draw()

@@ -19,26 +19,6 @@ function Group:remove(object)
             return
         end
     end
-    return
-end
-
-function Group:recycle(obj)
-    local recycled 
-    for _, member in ipairs(self.members) do
-        if member and not member.exists and member:is(class) then
-            recycled = member
-            break
-        end
-    end
-
-    if recycled then
-        self:remove(recycled)
-    else
-        recycled = obj()
-    end
-
-    self:add(recycled)
-    return recycled
 end
 
 function Group:clear()
@@ -54,7 +34,14 @@ end
 function Group:draw()
     for i, member in ipairs(self.members) do
         if self.antialiasing ~= nil then member.antialiasing = self.antialiasing end
-        if member.draw and self.visible then member:draw() end
+        if member.draw and self.visible then 
+            if member.class and member.class == "Sprite" then
+                if not (member.exists or member.alive or member.visible) then
+                    return
+                end
+            end
+            member:draw() 
+        end
     end
 end
 

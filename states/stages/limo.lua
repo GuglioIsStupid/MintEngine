@@ -10,7 +10,7 @@ function Stage:create()
     local bg = BGSprite("stages/limo/limoSunset", -120, -50, 0.1, 0.1)
     self:add(bg)
 
-    local bgLimo = BGSprite("stages/limo/bgLimo", -150, 480, 0.4, 0.4, {"Henchmen on rail"}, true)
+    local bgLimo = BGSprite("stages/limo/bgLimo", -150, 480, 0.4, 0.4, {"background limo pink"}, true)
     self:add(bgLimo)
 
     self.grpLimoDancers = Group()
@@ -22,10 +22,14 @@ function Stage:create()
         dancer.camera = PlayState.camGame
         self.grpLimoDancers:add(dancer)
     end
+
+    self.fastCar = BGSprite("stages/limo/fastCarLol", -300, 160)
+    self.fastCar.active = true
 end
 
 function Stage:createPost()
-    --self:addBehindGf(self.fastCar)
+    self:resetFastCar()
+    self:addBehindGF(self.fastCar)
 
     local limo = BGSprite("stages/limo/limoDrive", -120, 550, 1, 1, {"Limo stage"}, true)
     self:addBehindBF(limo)
@@ -36,6 +40,31 @@ function Stage:beatHit()
         dancer.danceDir = not dancer.danceDir
         dancer:dance()
     end
+
+    if love.math.random(10) == 1 then
+        self:fastCarDrive()
+    end
+end
+
+function Stage:resetFastCar()
+    self.fastCar.x = -12600
+    self.fastCar.y = love.math.random(140, 250)
+    self.fastCar.velocity.x = 0
+    self.fastCarCanDrive = true
+end
+
+function Stage:fastCarDrive()
+    Sound.play(Paths.sound("assets/sounds/week4/carPass" .. love.math.random(0, 1) .. ".ogg"))
+
+    self.fastCar.velocity.x = (love.math.random(170, 220) / love.timer.getDelta()) * 3
+    self.fastCarCanDrive = false
+    if self.carTimer then
+        Timer.cancel(self.carTimer)
+    end
+    self.carTimer = Timer.after(2, function()
+        self:resetFastCar()
+        self.carTimer = nil
+    end)
 end
 
 return Stage
