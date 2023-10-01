@@ -13,7 +13,7 @@ function Stage:create()
 
     local clouds = BGSprite("stages/tank/tankClouds", love.math.random(-700, -100), love.math.random(-20, 20), 0.1, 0.1)
     clouds.active = true
-    clouds.velocity.x = love.math.randomFloat(5, 15)
+    clouds.velocity.x = love.random.float(5, 15)
     self:add(clouds)
 
     local mountains = BGSprite("stages/tank/tankMountains", -300, -20, 0.2, 0.2)

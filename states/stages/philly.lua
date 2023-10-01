@@ -108,7 +108,7 @@ function Stage:eventCalled(eventName, v1, v2, fv1, fv2, strumTime)
                 self.phillyStreet.color = {1, 1, 1, 1}
             end
         elseif lightId == 1 then
-            self.curLightEvent = love.math.randomIgnore( 1, 5, self.curLightEvent)
+            self.curLightEvent = love.random.int( 1, 5, self.curLightEvent)
             local color = self.phillyLightsColors[self.curLightEvent]
 
             if not self.phillyGlowGradient.visible then
@@ -156,7 +156,7 @@ end
 
 function Stage:beatHit()
     if PlayState.curBeat % 4 == 0 then
-        self.curLight = love.math.randomIgnore(1, 5, self.curLight)
+        self.curLight = love.random.int(1, 5, self.curLight)
         self.phillyWindow.color = self.phillyLightsColors[self.curLight]
         self.phillyWindow.alpha = 1
     end

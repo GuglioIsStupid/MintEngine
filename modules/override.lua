@@ -96,17 +96,32 @@ function table.reverse(t)
 end
 
 -- Love functions
-function love.math.randomIgnore(min, max, ignore)
+love.random = {}
+
+function love.random.int(min, max, ignore)
     local num = love.math.random(min, max)
     if num == ignore then
-        return love.math.randomIgnore(min, max, ignore)
+        return love.random.int(min, max, ignore)
     else
         return num
     end
 end
 
-function love.math.randomFloat(min, max)
-    return min + love.math.random() * (max - min)
+function love.random.float(min, max, ignore)
+    local num = love.math.random() * (max - min) + min
+    if num == ignore then
+        return love.random.float(min, max, ignore)
+    else
+        return num
+    end
+end
+
+function love.random.bool(num)
+    if num == nil then
+        return love.math.random() < 0.5
+    else
+        return love.math.random() < num
+    end
 end
 
 -- Misc functions

@@ -26,8 +26,8 @@ function TankmenBG:resetShit(x, y, goingRight)
     self.x = x
     self.y = y
     self.goingRight = goingRight
-    self.endingOffset = love.math.randomFloat(50, 200)
-    self.tankSpeed = love.math.randomFloat(0.6, 1)
+    self.endingOffset = love.random.float(50, 200)
+    self.tankSpeed = love.random.float(0.6, 1)
     self.flipX = goingRight
 end
 
