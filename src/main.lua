@@ -24,6 +24,15 @@ function love.load()
     Object = require "libs.classic"
     Timer = require "libs.timer"
 
+    ClientPrefs = require "backend.ClientPrefs".ClientPrefs
+    SaveVariables = require "backend.ClientPrefs".SaveVariables
+    -- locales -- todo. add more languages & switch specifics
+    local cur_locale = SaveVariables.locale
+    if love.system.getOS() == "NX" then
+        cur_locale = cur_locale .. "_nx"
+    end
+    locale = json.decode(love.filesystem.read("locales/" .. cur_locale .. ".json"))
+
     -- Modules
     require "modules.override"
     CoolUtil = require "modules.CoolUtil"
@@ -67,9 +76,6 @@ function love.load()
         SchoolEvil = require "states.stages.schoolEvil",
         Tank = require "states.stages.tank",
     }
-
-    -- locales -- todo. add more languages & switch specifics
-    locale = json.decode(love.filesystem.read("locales/en.json"))
 
     push.setupScreen(1280, 720, {upscale = "normal"})
 

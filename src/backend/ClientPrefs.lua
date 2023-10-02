@@ -4,7 +4,7 @@ local SaveVariables = {
     opponentStrums = true,
     showFPS = true,
     flashing = true,
-    autoPause = true
+    autoPause = true,
     splashAlpha = 0.6,
     shaders = true,
     --framerate = 60, --todo.
@@ -14,7 +14,7 @@ local SaveVariables = {
     timeBarType = "Time Left",
     scoreZoom = true,
     noReset = false,
-    healthBarAlpha = 1
+    healthBarAlpha = 1,
     --hitSoundVolume = 0 --todo.
     pauseMusic = "breakfast",
     comboStacking = true,
@@ -34,10 +34,14 @@ local SaveVariables = {
     sickWindow = 45,
     goodWindow = 90,
     badWindow = 135,
-    safeFrames = 10
+    safeFrames = 10,
+
+    locale = "en"
 }
 
 local ClientPrefs = {}
 
 ClientPrefs.data = nil
 ClientPrefs.defaultData = nil
+
+return {ClientPrefs = ClientPrefs, SaveVariables = SaveVariables}
