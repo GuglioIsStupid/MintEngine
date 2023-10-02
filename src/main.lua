@@ -114,7 +114,7 @@ function love.draw()
     -- print fps
     love.graphics.setColor(1, 1, 1, 1)
     love.graphics.print("FPS: " .. love.timer.getFPS() .. "\n" .. 
-                    "Memory: " .. math.floor(collectgarbage("count")) .. " KB" .. 
-                    "\nGraphics Memory: " .. math.floor(love.graphics.getStats().texturememory / 1024 / 1024) .. " MB" ..
-                    "\nDraw Calls: " .. love.graphics.getStats().drawcalls, 10, 10)
+                        "Memory: " .. math.floor(collectgarbage("count")) .. " KB" .. 
+                        "\nGraphics Memory: " .. math.floor(love.graphics.getStats().texturememory / 1024 / 1024) .. " MB" ..
+                        "\nDraw Calls: " .. love.graphics.getStats().drawcalls, 10, 10)
 end
