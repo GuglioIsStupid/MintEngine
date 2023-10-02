@@ -13,7 +13,20 @@ for /d %%d in (*) do (
     for %%f in (%%d\*) do (
         if exist %%f\* (
             for /d %%g in (%%f\*) do (
+                rem if its a directory, recurse through it
+                mkdir ..\dds\%%d\%%~ng
+                
+                if exist %%g\* (
+                    for /d %%h in (%%g\*) do (
+                        mkdir ..\dds\%%d\%%~ng\%%~nh
+                        %script% -f DXT5 -m 1 -nologo -o ..\dds\%%d\%%~ng\%%~nh -srgb -y %%h
+
+                        rename ..\dds\%%d\%%~ng\%%~nh.DDS %%~nh.dds
+                    )
+                )
                 %script% -f DXT5 -m 1 -nologo -o ..\dds\%%d\%%~ng -srgb -y %%g
+
+                rename ..\dds\%%d\%%~ng.DDS %%~ng.dds
             )
         )
         %script% -f DXT5 -m 1 -nologo -o ..\dds\%%d -srgb -y %%f

@@ -4,8 +4,8 @@ Paths.imageType = "dds"
 
 function Paths.image(path)
     local path_ = "assets/images/" .. Paths.imageType .. "/" .. path .. "." .. Paths.imageType
-    -- does file or cache exist? if not, replace dds with png
-    if not love.filesystem.getInfo(path_) or not Cache.members.image[path] then
+    print(path_)
+    if not love.filesystem.getInfo(path_) then
         path_ = "assets/images/png/" .. path .. ".png"
     end
     if Cache.members.image[path] then
