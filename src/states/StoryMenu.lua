@@ -120,7 +120,7 @@ function StoryMenuState:enter()
     self.txtWeekTitle.alignment = "left"
     self.txtWeekTitle.alpha = 0.7
 
-    local ui_tex = Paths.getAtlas("menu/campaign_menu_ui_assets", "assets/images/png/menu/campaign_menu_ui_assets.xml")
+    local ui_tex = Paths.getAtlas("menu/campaign_menu_UI_assets", "assets/images/png/menu/campaign_menu_UI_assets.xml")
     local bgYellow = Sprite(0, 56)
     bgYellow:makeGraphic(push:getWidth(), 386, 0xFFF9CF51)
     self.bgSprite = Sprite(0, 56)

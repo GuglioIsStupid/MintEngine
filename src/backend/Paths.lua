@@ -4,7 +4,6 @@ Paths.imageType = "dds"
 
 function Paths.image(path)
     local path_ = "assets/images/" .. Paths.imageType .. "/" .. path .. "." .. Paths.imageType
-    print(path_)
     if not love.filesystem.getInfo(path_) then
         path_ = "assets/images/png/" .. path .. ".png"
     end

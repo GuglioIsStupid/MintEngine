@@ -42,9 +42,10 @@ function love.load()
     StageData = require "backend.StageData"
     WeekData = require "backend.WeekData"
     Difficulty = require "backend.Difficulty"
-    Sound = require "modules.Sound"
+    Sound = require "modules.sound"
     Rating = require "backend.Rating"
     HealthIcon = require "objects.HealthIcon"
+    Trail = require "modules.flixel.Trail"
 
     StrumNote = require "objects.StrumNote"
     Note = require "objects.Note"
@@ -66,6 +67,9 @@ function love.load()
         SchoolEvil = require "states.stages.schoolEvil",
         Tank = require "states.stages.tank",
     }
+
+    -- locales -- todo. add more languages & switch specifics
+    locale = json.decode(love.filesystem.read("locales/en.json"))
 
     push.setupScreen(1280, 720, {upscale = "normal"})
 
@@ -113,8 +117,8 @@ function love.draw()
 
     -- print fps
     love.graphics.setColor(1, 1, 1, 1)
-    love.graphics.print("FPS: " .. love.timer.getFPS() .. "\n" .. 
-                        "Memory: " .. math.floor(collectgarbage("count")) .. " KB" .. 
-                        "\nGraphics Memory: " .. math.floor(love.graphics.getStats().texturememory / 1024 / 1024) .. " MB" ..
-                        "\nDraw Calls: " .. love.graphics.getStats().drawcalls, 10, 10)
+    love.graphics.print(locale.debug.fps .. love.timer.getFPS() .. "\n" .. 
+                        locale.debug.memory .. math.floor(collectgarbage("count")) .. " KB\n" .. 
+                        locale.debug.graphics_memory .. math.floor(love.graphics.getStats().texturememory / 1024 / 1024) .. " MB\n" ..
+                        locale.debug.draw_calls .. love.graphics.getStats().drawcalls, 10, 10)
 end

@@ -1,0 +1,8 @@
+{
+    "debug": {
+        "fps": "FPS: ",
+        "memory": "Memory: ",
+        "graphics_memory": "Graphics Memory: ",
+        "draw_calls": "Draw Calls: "
+    }
+}
