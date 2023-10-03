@@ -11,7 +11,15 @@ end
 function string.split(self, sep)
     local sep, fields = sep or ":", {}
     local pattern = string.format("([^%s]+)", sep)
-    self:gsub(pattern, function(c) fields[#fields+1] = c end)
+    --[[ self:gsub(pattern, function(c) fields[#fields+1] = c end) ]]
+    -- if split is just "", then return the string as a table
+    if sep == "" then
+        for i = 1, #self do
+            fields[i] = self:sub(i, i)
+        end
+    else
+        self:gsub(pattern, function(c) fields[#fields + 1] = c end)
+    end
     return fields
 end
 

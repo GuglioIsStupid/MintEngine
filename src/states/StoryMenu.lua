@@ -33,6 +33,8 @@ StoryMenuState.tweenDifficulty = nil
 StoryMenuState.intendedScore = 0
 StoryMenuState.lerpScore = 0
 
+StoryMenuState.weekCompleted = {}
+
 -- Simplicity
 StoryMenuState.members = {}
 function StoryMenuState:add(member)

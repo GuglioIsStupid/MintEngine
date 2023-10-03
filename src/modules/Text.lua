@@ -17,6 +17,7 @@ Text.limit = 0
 Text.fullText = ""
 Text.scale = {x=1,y=1}
 Text.camera = nil
+Text.width, Text.height = 0, 0
 
 function Text:new(x, y, limit, text, font)
     local x = x or 0
@@ -48,6 +49,8 @@ function Text:new(x, y, limit, text, font)
     self.scrollFactor = {x=1,y=1}
 
     self.borderSize = 1
+
+    self.width, self.height = self.font:getWidth(self.text), self.font:getHeight(self.text)
 
     return self
 end
@@ -81,6 +84,7 @@ function Text:draw()
 
             love.graphics.setFont(self.font)
             love.graphics.setColor(self.borderColor[1], self.borderColor[2], self.borderColor[3], self.alpha)
+            self.width, self.height = self.font:getWidth(self.text), self.font:getHeight(self.text)
 
             love.graphics.push()
             love.graphics.translate(-(self.font:getWidth(self.text) * (self.scale.x - 1)), -(self.font:getHeight(self.text) * (self.scale.y - 1)))

@@ -44,6 +44,7 @@ function love.load()
     AtlasSprite = require "animateatlas.Sprite"
     Text = require "modules.Text"
     Group = require "modules.flixel.Group"
+    SpriteGroup = require "modules.flixel.SpriteGroup"
     Flicker = require "modules.flixel.Flicker"
     Song = require "backend.Song"
     MusicBeatState = require "backend.MusicBeatState"
@@ -55,12 +56,15 @@ function love.load()
     Rating = require "backend.Rating"
     HealthIcon = require "objects.HealthIcon"
     Trail = require "modules.flixel.Trail"
+    Point = require "modules.flixel.math.Point"
 
+    -- Objects
     StrumNote = require "objects.StrumNote"
     Note = require "objects.Note"
     EventNote = require "objects.EventNote"
     Character = require "objects.Character"
     BGSprite = require "objects.BGSprite"
+    Alphabet = require "objects.Alphabet"
 
     DialogueBox = require "cutscenes.DialogueBox"
     HealthBar = require "objects.HealthBar"
@@ -91,6 +95,7 @@ function love.load()
     MainMenuState = require "states.MainMenu"
     StoryMenuState = require "states.StoryMenu"
     PlayState = require "states.Play"
+    FreeplayState = require "states.Freeplay"
 
     Gamestate.switch(TitleState)
 

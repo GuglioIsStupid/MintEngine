@@ -192,7 +192,11 @@ function MainMenuState:update(dt)
                                     end
                                 )
                             elseif daChoice == "freeplay" then
-                                -- FreeplayMenuState
+                                MusicBeatState:fadeOut(0.3,
+                                    function()
+                                        MusicBeatState:switchState(FreeplayState)
+                                    end
+                                )
                             elseif daChoice == "mods" then
                                 -- ModsMenuState
                             elseif daChoice == "credits" then

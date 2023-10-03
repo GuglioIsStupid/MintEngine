@@ -1039,6 +1039,8 @@ function PlayState:endSong()
 
                     MusicBeatState:fadeOut(0.3, function() MusicBeatState:switchState(PlayState) end)
                 end
+            else
+                MusicBeatState:fadeOut(0.3, function() MusicBeatState:switchState(FreeplayState) end)
             end
             self.transitioning = true
         end
