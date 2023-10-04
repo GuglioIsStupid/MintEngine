@@ -155,6 +155,8 @@ function Sprite:setFrames(frames)
 
     self:load(self.graphic)
     self.width, self.height = frames.frames[1].width, frames.frames[1].height
+
+    return self
 end
 
 function Sprite:addByPrefix(animName, animPrefix, framerate, loop)
@@ -175,6 +177,8 @@ function Sprite:addByPrefix(animName, animPrefix, framerate, loop)
 
     if not self.animations then self.animations = {} end
     self.animations[animName] = anim
+
+    return self
 end
 
 function Sprite:getMidpoint()
@@ -214,6 +218,8 @@ function Sprite:addByIndices(animName, animPrefix, indices, framerate, loop)
 
     if not self.animations then self.animations = {} end
     self.animations[animName] = anim
+
+    return self
 end
 
 function Sprite:addByTiles(animName, frames, framerate, loops)
@@ -232,6 +238,8 @@ function Sprite:addByTiles(animName, frames, framerate, loops)
 
     if not self.animations then self.animations = {} end
     self.animations[animName] = anim
+
+    return self
 end
 
 function Sprite:update(dt)
@@ -263,16 +271,19 @@ end
 function Sprite:makeGraphic(width, height, color)
     local width = width or 10
     local height = height or 10
-    local color = hexToColor(color or 0xFFFFFFFF)
+    local color = hexToColor(color or 0xFFFFFFFF) 
 
     self.isMakeGraphic = true
 
     self:setGraphicSize(width, height)
     self.color = color
     self:updateHitbox()
+
+    return self
 end
 
 function Sprite:play(anim, force, frame)
+    local anim = anim or self.animations[1].name
     if not force and self.curAnim and self.curAnim.name == anim and not self.animFinished then
         self.animFinished = false
         self.animPaused = false
@@ -284,6 +295,8 @@ function Sprite:play(anim, force, frame)
         self.indexFrame = frame or 1
         self.animFinished = false
     end 
+
+    return self
 end
 
 function Sprite:getCurrentFrame()
@@ -323,6 +336,8 @@ function Sprite:setGraphicSize(w, h)
     elseif h <= 0 then
         self.scale.y = self.scale.x
     end
+
+    return self
 end
 
 function Sprite:updateHitbox()
@@ -333,14 +348,20 @@ function Sprite:updateHitbox()
 
     self.offset = {x = -0.5 * (self.width - w), y = -0.5 * (self.height - h)}
     self:centerOrigin()
+
+    return self
 end
 
 function Sprite:centerOffsets()
     self.offset.x, self.offset.y = (self:getFrameWidth() - self.width) / 2, (self:getFrameHeight() - self.height) / 2
+
+    return self
 end
 
 function Sprite:centerOrigin()
     self.origin.x, self.origin.y = self:getFrameWidth() / 2, self:getFrameHeight() / 2
+
+    return self
 end
 
 function Sprite:screenCenter(axis)
@@ -351,6 +372,8 @@ function Sprite:screenCenter(axis)
     if axis:find("Y") then
         self.y = (push:getHeight() - self.height) / 2
     end
+
+    return self
 end
 
 function Sprite:kill()

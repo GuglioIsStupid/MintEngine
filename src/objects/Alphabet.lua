@@ -1,4 +1,4 @@
-local Alignment = {
+AlphabetAlignment = {
     LEFT = 0,
     CENTERED = 1,
     RIGHT = 2
@@ -16,7 +16,7 @@ Alphabet.targetY = 0
 Alphabet.changeX = true
 Alphabet.changeY = true
 
-Alphabet.Alignment = Alignment.LEFT
+Alphabet.Alignment = AlphabetAlignment.LEFT
 Alphabet.scaleX = 1
 Alphabet.scaleY = 1
 Alphabet.rows = 0
@@ -42,7 +42,7 @@ function Alphabet:new(x, y, text, bold)
     self.targetY = 0
     self.changeX = true
     self.changeY = true
-    self.Alignment = Alignment.LEFT
+    self.Alignment = AlphabetAlignment.LEFT
     self.scaleX = 1
     self.scaleY = 1
     self.rows = 0
@@ -55,15 +55,15 @@ end
 
 function Alphabet:setAlignmentFromString(align)
     local align = align:upper() or "LEFT"
-    self.Alignment = Alignment[align] or Alignment.LEFT
+    self.Alignment = AlphabetAlignment[align] or AlphabetAlignment.LEFT
 end
 
 function Alphabet:updateAlignment()
     for _, letter in ipairs(self.letters) do
         local newOffset = 0
-        if self.Alignment == Alignment.CENTERED then
+        if self.Alignment == AlphabetAlignment.CENTERED then
             newOffset = letter.rowWidth / 2
-        elseif self.Alignment == Alignment.RIGHT then
+        elseif self.Alignment == AlphabetAlignment.RIGHT then
             newOffset = letter.rowWidth
         else
             newOffset = 0
@@ -121,17 +121,17 @@ function Alphabet:softReloadLetters(ratioX, ratioY)
     end
 end
 
-function Alphabet:update(elapsed)
+function Alphabet:update(dt)
     if self.isMenuItem then
         local lerpVal = math.bound(dt * 9.6, 0, 1)
         if self.changeX then
-            self.x = math.lerp(x, (self.targetY * self.distancePerItem.x) + self.startPosition.x, lerpVal)
+            self.x = math.lerp(self.x, (self.targetY * self.distancePerItem.x) + self.startPosition.x, lerpVal)
         end
         if self.changeY then
-            self.y = math.lerp(y, (self.targetY * 1.3 * self.distancePerItem.y) + self.startPosition.y, lerpVal)
+            self.y = math.lerp(self.y, (self.targetY * 1.3 * self.distancePerItem.y) + self.startPosition.y, lerpVal)
         end
     end
-    self.super.update(self, elapsed)
+    self.super.update(self, dt)
 end
 
 function Alphabet:snapToPosition()
@@ -153,12 +153,12 @@ function Alphabet:createLetters(newText)
     self.rows = 0
 
     for _, character in ipairs(newText:split("")) do
-        if character ~= "\n" then
+        if character ~= "\n" and character ~= "" then
             local spaceChar = (character == " " or (self.bold and character == "_"))
             if spaceChar then consecutiveSpaces = consecutiveSpaces + 1 end
 
-            local isAlphabet = AlphaCharacter:isTypeAlphabet(character:lower())
-            if (not self.bold or not spaceChar) then
+            local isAlphabet = AlphaCharacter:isTypeAlphabet(character:lower()) and not spaceChar
+            if (not spaceChar) then
                 if consecutiveSpaces > 0 then
                     xPos = xPos + 28 * consecutiveSpaces * self.scale.x
                     if not self.bold and xPos >= push:getWidth() * 0.65 then

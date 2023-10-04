@@ -1,45 +1,45 @@
 local SongMetaData = require "backend.SongMetaData"
 
-local Freeplay = MusicBeatState:extend()
+local FreeplayState = MusicBeatState:extend()
 
-Freeplay.songs = {}
-Freeplay.selector = nil
-Freeplay.curSelected = 1
-Freeplay.lerpSelected = 0
-Freeplay.curDifficulty = -1
-Freeplay.lastDifficultyName = Difficulty:getDefault()
+FreeplayState.songs = {}
+FreeplayState.selector = nil
+FreeplayState.curSelected = 1
+FreeplayState.lerpSelected = 0
+FreeplayState.curDifficulty = -1
+FreeplayState.lastDifficultyName = Difficulty:getDefault()
 
-Freeplay.scoreBG = nil
-Freeplay.scoreText = nil
-Freeplay.diffText = nil
-Freeplay.lerpScore = 0
-Freeplay.lerpRating = 0
-Freeplay.intendedScore = 0
-Freeplay.intendedRating = 0
-Freeplay.grpSongs = nil
-Freeplay.curPlaying = false
+FreeplayState.scoreBG = nil
+FreeplayState.scoreText = nil
+FreeplayState.diffText = nil
+FreeplayState.lerpScore = 0
+FreeplayState.lerpRating = 0
+FreeplayState.intendedScore = 0
+FreeplayState.intendedRating = 0
+FreeplayState.grpSongs = nil
+FreeplayState.curPlaying = false
 
-Freeplay.iconArray = {}
+FreeplayState.iconArray = {}
 
-Freeplay.bg = nil
-Freeplay.intendedColor = nil
-Freeplay.colorTween = nil
+FreeplayState.bg = nil
+FreeplayState.intendedColor = nil
+FreeplayState.colorTween = nil
 
-Freeplay.missingTextBG = nil
-Freeplay.missingText = nil
-Freeplay.instPlaying = -1
-Freeplay.vocals = nil
-Freeplay.holdTime = 0
-Freeplay._drawDistance = 4
-Freeplay._lastVisibles = {}
+FreeplayState.missingTextBG = nil
+FreeplayState.missingText = nil
+FreeplayState.instPlaying = -1
+FreeplayState.vocals = nil
+FreeplayState.holdTime = 0
+FreeplayState._drawDistance = 4
+FreeplayState._lastVisibles = {}
 
 -- Simplicity
-Freeplay.members = {}
-function Freeplay:add(member)
+FreeplayState.members = {}
+function FreeplayState:add(member)
     table.insert(self.members, member)
 end
 
-function Freeplay:remove(member)
+function FreeplayState:remove(member)
     for i, member in ipairs(self.members) do
         if member == member then
             table.remove(self.members, i)
@@ -48,16 +48,16 @@ function Freeplay:remove(member)
     end
 end
 
-function Freeplay:insert(position, member)
+function FreeplayState:insert(position, member)
     table.insert(self.members, position, member)
 end
 
-function Freeplay:clear()
+function FreeplayState:clear()
     self.members = {}
 end
 --
 
-function Freeplay:resetValues()
+function FreeplayState:resetValues()
     self.members = {}
     self.songs = {}
     self.iconArray = {}
@@ -84,7 +84,7 @@ function Freeplay:resetValues()
     self.grpTexts = Group()
 end
 
-function Freeplay:enter()
+function FreeplayState:enter()
     PlayState.isStoryMode = false
     self:resetValues()
     WeekData:reloadWeekFiles(false)
@@ -186,18 +186,18 @@ function Freeplay:enter()
     self:updateTexts(love.timer.getDelta())
 end
 
-function Freeplay:addSong(songName, weekNum, songCharacter, color)
+function FreeplayState:addSong(songName, weekNum, songCharacter, color)
     table.insert(self.songs, SongMetaData(songName, weekNum, songCharacter, color))
 end
 
-function Freeplay:weekIsLocked(name)    
+function FreeplayState:weekIsLocked(name)    
     local leWeek = WeekData.weeksLoaded[name]
     --return (not leWeek.startUnlocked and #leWeek.weekbefore > 0 and (not self.weekComplated[leWeek.weekBefore] or not self.weekCompleted[leWeek.weekBefore])) 
     --return (not leWeek.startUnlocked and #leWeek.weekBefore > 0 and (not StoryMenuState.weekCompleted[leWeek.weekBefore]) or not StoryMenuState.weekCompleted[leWeek.weekBefore])
     return (not leWeek.startUnlocked and #leWeek.weekBefore > 0 and (not StoryMenuState.weekCompleted[leWeek.weekBefore]))
 end
 
-function Freeplay:update(dt)
+function FreeplayState:update(dt)
     for i, member in ipairs(self.members) do
         if member.update then 
             member:update(dt) 
@@ -300,7 +300,7 @@ function Freeplay:update(dt)
     self:updateTexts(dt)
 end
 
-function Freeplay:changeDiff(change)
+function FreeplayState:changeDiff(change)
     local change = change or 0
 
     self.curDifficulty = self.curDifficulty + change
@@ -322,7 +322,7 @@ function Freeplay:changeDiff(change)
     self.missingTextBG.visible = false
 end
 
-function Freeplay:changeSelection(change, playSound)
+function FreeplayState:changeSelection(change, playSound)
     local change = change or 0
     local playSound = (playSound == nil) and true or playSound
     self:_updateSongLastDifficulty()
@@ -379,11 +379,11 @@ function Freeplay:changeSelection(change, playSound)
     self:_updateSongLastDifficulty()
 end
 
-function Freeplay:_updateSongLastDifficulty()
+function FreeplayState:_updateSongLastDifficulty()
     self.songs[self.curSelected].lastDifficulty = Difficulty:getString(self.curDifficulty)
 end
 
-function Freeplay:positionHighscore()
+function FreeplayState:positionHighscore()
     self.scoreText.x = push:getWidth() - self.scoreText.width - 6
     self.scoreBG.scale.x = push:getWidth() - self.scoreText.x + 6
     self.scoreBG.x = push:getWidth() - (self.scoreBG.scale.x / 2)
@@ -391,7 +391,7 @@ function Freeplay:positionHighscore()
     self.diffText.x = self.diffText.x - (self.diffText.width / 2)
 end
 
-function Freeplay:updateTexts(dt)
+function FreeplayState:updateTexts(dt)
     self.lerpSelected = math.lerp(self.lerpSelected, self.curSelected, math.bound(dt * 9.6, 0, 1))
 
     for i = 1, #self._lastVisibles do
@@ -415,7 +415,7 @@ function Freeplay:updateTexts(dt)
     end
 end
 
-function Freeplay:draw()
+function FreeplayState:draw()
     for i, member in ipairs(self.members) do
         if member.draw then 
             member:draw() 
@@ -423,4 +423,4 @@ function Freeplay:draw()
     end
 end
 
-return Freeplay
+return FreeplayState

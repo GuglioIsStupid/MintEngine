@@ -151,3 +151,4 @@ function hexToColor(hex)
         return {bit.rshift(hex, 16) / 255, bit.band(bit.rshift(hex, 8), 0xFF) / 255, bit.band(hex, 0xFF) / 255, 1}
     end
 end
+

@@ -200,7 +200,11 @@ function MainMenuState:update(dt)
                             elseif daChoice == "mods" then
                                 -- ModsMenuState
                             elseif daChoice == "credits" then
-                                -- CreditsState
+                                MusicBeatState:fadeOut(0.3,
+                                    function()
+                                        MusicBeatState:switchState(CreditsState)
+                                    end
+                                )
                             elseif daChoice == "options" then
                                 -- OptionsMenuState
                             end

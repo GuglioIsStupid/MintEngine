@@ -1,19 +1,33 @@
 function love.load()
     -- Libraries
+
+    local note_left, note_right, note_up, note_down, accept, back
+    if love.system.getOS() == "NX" then
+        note_left = {"key:left", "key:a", "axis:leftx-", "button:dpleft",  "axis:triggerleft+", "button:y", "axis:rightx-"}
+        note_right = {"key:right", "key:d", "axis:leftx+", "button:dpright", "button:a", "axis:triggerright+", "axis:rightx+"}
+        note_up = {"key:up", "key:w", "axis:lefty-", "button:dpup", "button:rightshoulder", "button:x", "axis:righty-"}
+        note_down = {"key:down", "key:s", "axis:lefty+", "button:dpdown", "button:leftshoulder", "button:b", "axis:righty+"}
+    else
+        -- same thing, but y/x, a/b are swapped
+        note_left = {"key:left", "key:a", "axis:leftx-", "button:dpleft",  "axis:triggerleft+", "button:x", "axis:rightx-"}
+        note_right = {"key:right", "key:d", "axis:leftx+", "button:dpright", "button:b", "axis:triggerright+", "axis:rightx+"}
+        note_up = {"key:up", "key:w", "axis:lefty-", "button:dpup", "button:rightshoulder", "button:y", "axis:righty-"}
+        note_down = {"key:down", "key:s", "axis:lefty+", "button:dpdown", "button:leftshoulder", "button:a", "axis:righty+"}
+    end
     input = (require "libs.baton").new {
         controls = {
-            note_left = {"key:left", "key:a", "axis:leftx-", "button:dpleft"},
-            note_right = {"key:right", "key:d", "axis:leftx+", "button:dpright"},
-            note_up = {"key:up", "key:w", "axis:lefty-", "button:dpup"},
-            note_down = {"key:down", "key:s", "axis:lefty+", "button:dpdown"},
+            note_left = note_left,
+            note_right = note_right,
+            note_up = note_up,
+            note_down = note_down,
 
             accept = {"key:return", "button:a"},
             back = {"key:escape", "button:b"},
 
-            ui_down = {"key:down", "button:dpdown"},
-            ui_up = {"key:up", "button:dpup"},
-            ui_left = {"key:left", "button:dpleft"},
-            ui_right = {"key:right", "button:dpright"},
+            ui_down = {"key:down", "button:dpdown", "axis:lefty+"},
+            ui_up = {"key:up", "button:dpup", "axis:lefty-"},
+            ui_left = {"key:left", "button:dpleft", "axis:leftx-"},
+            ui_right = {"key:right", "button:dpright", "axis:leftx+"},
         },
         joystick = love.joystick.getJoysticks()[1],
     }
@@ -27,11 +41,11 @@ function love.load()
     ClientPrefs = require "backend.ClientPrefs".ClientPrefs
     SaveVariables = require "backend.ClientPrefs".SaveVariables
     -- locales -- todo. add more languages & switch specifics
-    local cur_locale = SaveVariables.locale
+    --[[ local cur_locale = SaveVariables.locale
     if love.system.getOS() == "NX" then
         cur_locale = cur_locale .. "_nx"
     end
-    locale = json.decode(love.filesystem.read("locales/" .. cur_locale .. ".json"))
+    locale = json.decode(love.filesystem.read("locales/" .. cur_locale .. ".json")) ]]
 
     -- Modules
     require "modules.override"
@@ -65,6 +79,7 @@ function love.load()
     Character = require "objects.Character"
     BGSprite = require "objects.BGSprite"
     Alphabet = require "objects.Alphabet"
+    AttachedSprite = require "objects.AttachedSprite"
 
     DialogueBox = require "cutscenes.DialogueBox"
     HealthBar = require "objects.HealthBar"
@@ -96,6 +111,7 @@ function love.load()
     StoryMenuState = require "states.StoryMenu"
     PlayState = require "states.Play"
     FreeplayState = require "states.Freeplay"
+    CreditsState = require "states.Credits"
 
     Gamestate.switch(TitleState)
 
@@ -128,8 +144,8 @@ function love.draw()
 
     -- print fps
     love.graphics.setColor(1, 1, 1, 1)
-    love.graphics.print(locale.debug.fps .. love.timer.getFPS() .. "\n" .. 
-                        locale.debug.memory .. math.floor(collectgarbage("count")) .. " KB\n" .. 
-                        locale.debug.graphics_memory .. math.floor(love.graphics.getStats().texturememory / 1024 / 1024) .. " MB\n" ..
-                        locale.debug.draw_calls .. love.graphics.getStats().drawcalls, 10, 10)
+    love.graphics.print("FPS:" .. love.timer.getFPS() .. "\n" .. 
+                        "Lua Memory: " .. math.floor(collectgarbage("count")) .. " KB\n" .. 
+                        "Graphics Memory: " .. math.floor(love.graphics.getStats().texturememory / 1024 / 1024) .. " MB\n" ..
+                        "Draw Calls: " .. love.graphics.getStats().drawcalls, 10, 10)
 end
