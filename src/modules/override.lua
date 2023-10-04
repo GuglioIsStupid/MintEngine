@@ -156,3 +156,12 @@ function hexToColor(hex)
     end
 end
 
+-- function to convert {r, g, b} to 0x00000000
+function colorToHex(color)
+    if #color == 3 then
+        return bit.lshift(color[1], 16) + bit.lshift(color[2], 8) + color[3]
+    elseif #color == 4 then
+        return bit.lshift(color[1], 24) + bit.lshift(color[2], 16) + bit.lshift(color[3], 8) + color[4]
+    end
+    return 0x00000000
+end

@@ -4,7 +4,7 @@ function LuaUtils.getVarInArray(instance, variable)
     local splitProps = variable:split("[")
     if #splitProps > 1 then
         local target = nil
-        if PlayState.variables[splitProps[1]] then
+        if PlayState.variables and PlayState.variables[splitProps[1]] then
             local retVal = PlayState.variables[splitProps[1]]
             if retVal then target = retVal end
         else
@@ -18,6 +18,34 @@ function LuaUtils.getVarInArray(instance, variable)
     end
 end
 
+function LuaUtils.setVarInArray(instance, variable, value)
+    local splitProps = variable:split("[")
+    if #splitProps > 1 then
+        local target = nil
+        if PlayState.variables and PlayState.variables[splitProps[1]] then
+            local retVal = PlayState.variables[splitProps[1]]
+            if retVal then target = retVal end
+        else
+            target = instance[splitProps[1]]
+        end
+        for i = 1, #splitProps - 1 do
+            local j = splitProps[i]:sub(1, #splitProps[i])
+            target = target[j]
+        end
+        target[splitProps[#splitProps]] = value
+
+        return target
+    end
+
+    if PlayState.variables[variable] then
+        PlayState.variables[variable] = value
+        return true
+    end
+
+    instance[variable] = value
+    return true
+end
+
 function LuaUtils.getTargetInstance()
     return PlayState.isDead and GameOverSubstate or PlayState
 end
@@ -29,7 +57,8 @@ function LuaUtils.getObjectDirectly(objectName, checkForTextsToo)
         return PlayState
     else
         local obj = PlayState:getLuaObject(objectName, checkForTextsToo)
-        if not obj then obj = LuaUtils.getVarInArray(self.getTargetInstance(), objectName) end
+        if not obj then obj = LuaUtils.getVarInArray(LuaUtils.getTargetInstance(), objectName) end
+        if not obj then obj = PlayState[objectName] end
         return obj
     end
 end
@@ -40,8 +69,10 @@ function LuaUtils.getPropertyLoop(killMe, checkForTextsToo, getProperty)
     local end_ = #killMe - 1
     if getProperty then end_ = #killMe end
 
-    for i = 1, end_ do
-        obj = LuaUtils.getVarInArray(obj, killMe[i])
+    local obj = LuaUtils.getObjectDirectly(killMe[1], checkForTextsToo)
+    for i = 2, end_ do
+        local j = killMe[i]:sub(1, #killMe[i])
+        obj = obj[j]
     end
     return obj
 end
@@ -65,7 +96,17 @@ function LuaUtils.resetSpriteTag(tag)
     target:kill()
     PlayState:remove(target)
     target:destroy()
-    table.remove(PlayState.modchartSprites, tag)
+    PlayState.modchartSprites[tag] = nil
+end
+
+function LuaUtils.tweenPrepare(tag, vars)
+    if tag then Timer.cancel(tag) end
+    local variables = vars:split(".")
+    local sexyProp = LuaUtils.getObjectDirectly(variables[1])
+    if #variables > 1 then
+        sexyProp = LuaUtils.getVarInArray(LuaUtils.getPropertyLoop(variables), variables[#variables])
+    end
+    return sexyProp
 end
 
 return LuaUtils

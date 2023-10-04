@@ -153,6 +153,7 @@ PlayState.eventsPushed = {}
 PlayState.members = {}
 
 PlayState.modchartSprites = {}
+PlayState.modchartTweens = {}
 
 function PlayState:resetValues()
     -- call everything defined to the default
@@ -275,6 +276,7 @@ function PlayState:resetValues()
     self.antialiasing = false
 
     self.modchartSprites = {}
+    self.modchartTweens = {}
 end
 
 function PlayState:add(member, pos)
@@ -282,8 +284,7 @@ function PlayState:add(member, pos)
     if pos == -1 then
         table.insert(self.members, member)
     else
-        print("inserting at " .. position)
-        table.insert(self.members, position, member)
+        table.insert(self.members, pos, member)
     end
 end
 
@@ -414,6 +415,29 @@ function PlayState:enter()
         stage = Stages.Tank()
     end
 
+    local filesPushed = {}
+    local foldersToCheck = {"assets/scripts/"}
+    if MODS_ALLOWED then
+        table.insert(foldersToCheck, 1, Paths.mods("scripts/"))
+        if Mods.currentModDirectory and #Mods.currentModDirectory > 0 then
+            table.insert(foldersToCheck, 1, Paths.mods(Mods.currentModDirectory .. "/scripts/"))
+        end
+        for i, mod in ipairs(Mods:getGlobalMods()) do
+            table.insert(foldersToCheck, 1, Paths.mods(mod .. "/scripts/"))
+        end
+    end
+
+    for i, folder in ipairs(foldersToCheck) do
+        if love.filesystem.getInfo(folder) then
+            for i2, file in ipairs(love.filesystem.getDirectoryItems(folder)) do
+                if file:endsWith(".lua") and not table.contains(filesPushed, file) then
+                    table.insert(self.luaArray, FunkinLua(folder .. file))
+                    table.insert(filesPushed, file)
+                end
+            end
+        end
+    end
+
     if MODS_ALLOWED then
         self:startLuasOnFolder("stages/" .. self.curStage .. ".lua")
     end
@@ -459,6 +483,7 @@ function PlayState:enter()
     if stage then
         stage:createPost()
     end
+    self:callOnLuas("onCreatePost")
     Conductor.songPosition = -5000 / Conductor.songPosition
 
     self:add(self.combos)
@@ -503,6 +528,11 @@ function PlayState:enter()
     Conductor.songPosition = 0
 
     self:generateSong(self.SONG.song)
+
+    for i, event in ipairs(self.eventsPushed) do
+        print("starting event " .. event)
+        self:startLuasOnFolder("custom_events/" .. event .. ".lua")
+    end
 
     self.generatedMusic = false
 
@@ -554,17 +584,21 @@ function PlayState:moveCameraSection(sec)
     local isDad = not self.SONG.notes[sec].mustHitSection
 
     if self.gf and self.SONG.notes[sec].gfSection or (isDad and self.dad.curCharacter:startsWith("gf")) then
-        self.camTwn = Timer.tween(self.cameraSpeed, self.camFollow, 
+        --[[ self.camTwn = Timer.tween(self.cameraSpeed, self.camFollow, 
             {
                 x = self.gf:getMidpoint().x + self.gf.cameraPosition[1] + self.girlfriendCameraOffset[1], 
                 y = self.gf:getMidpoint().y + self.gf.cameraPosition[2] + self.girlfriendCameraOffset[2] - 50
             }, "out-quad"
-        )
+        ) ]]
+        self.camFollow.x = self.gf:getMidpoint().x + self.gf.cameraPosition[1] + self.girlfriendCameraOffset[1]
+        self.camFollow.y = self.gf:getMidpoint().y + self.gf.cameraPosition[2] + self.girlfriendCameraOffset[2] - 50
         self:tweenCamIn()
+        self:callOnLuas("onMoveCaamera", {"gf"})
         return;
     end
 
     self:moveCamera(isDad)
+    self:callOnLuas("onMovecamera", {isDada and "dad" or "boyfriend"})
 end
 
 function PlayState:updateScore(miss)
@@ -586,6 +620,7 @@ function PlayState:updateScore(miss)
         self.scoreTxt.scale = {x = 1.075, y = 1.075}
         self.scoreTxtTween = Timer.tween(0.2, self.scoreTxt.scale, {x = 1, y = 1}, "linear", function() self.scoreTxtTween = nil end)
     end
+    self:callOnLuas("onUpdateScore", {miss})
 end
 
 function PlayState:recalculateRating(badHit)
@@ -634,20 +669,24 @@ function PlayState:moveCamera(isDad)
     if self.camTween then Timer.cancel(self.camTween) end
     if isDad then
         --print( self.dad:getMidpoint().x + 150 + self.dad.cameraPosition[1] + self.opponentCameraOffset[1], self.dad:getMidpoint().y - 100 + self.dad.cameraPosition[2] + self.opponentCameraOffset[2])
-        self.camTween = Timer.tween(self.cameraSpeed, self.camFollow, 
+        --[[ self.camTween = Timer.tween(self.cameraSpeed, self.camFollow, 
             {
                 x = self.dad:getMidpoint().x + 150 + self.dad.cameraPosition[1] + self.opponentCameraOffset[1], 
                 y = self.dad:getMidpoint().y - 100 + self.dad.cameraPosition[2] + self.opponentCameraOffset[2]
             }, "out-quad"
-        ) 
+        )  ]]
+        self.camFollow.x = self.dad:getMidpoint().x + 150 + self.dad.cameraPosition[1] + self.opponentCameraOffset[1]
+        self.camFollow.y = self.dad:getMidpoint().y - 100 + self.dad.cameraPosition[2] + self.opponentCameraOffset[2]
     else
         --print( self.boyfriend:getMidpoint().x - 100 - self.boyfriend.cameraPosition[1] - self.boyfriendCameraOffset[1], self.boyfriend:getMidpoint().y - 100 + self.boyfriend.cameraPosition[2] + self.boyfriendCameraOffset[2])
-        self.camTween = Timer.tween(self.cameraSpeed, self.camFollow, 
+        --[[ self.camTween = Timer.tween(self.cameraSpeed, self.camFollow, 
             {
                 x = self.boyfriend:getMidpoint().x - 100 - self.boyfriend.cameraPosition[1] - self.boyfriendCameraOffset[1], 
                 y = self.boyfriend:getMidpoint().y - 100 + self.boyfriend.cameraPosition[2] + self.boyfriendCameraOffset[2]
             }, "out-quad"
-        ) 
+        )  ]]
+        self.camFollow.x = self.boyfriend:getMidpoint().x - 100 - self.boyfriend.cameraPosition[1] - self.boyfriendCameraOffset[1]
+        self.camFollow.y = self.boyfriend:getMidpoint().y - 100 + self.boyfriend.cameraPosition[2] + self.boyfriendCameraOffset[2]
 
         if Paths.formatToSongPath(self.SONG.song) == "tutorial" and not self.cameraTwn and self.camGame.zoom ~= 1 then
             self.cameraTwn = Timer.tween(Conductor.stepCrochet*4/1000, self.camGame, {zoom = 1}, "in-bounce", function() self.cameraTwn = nil end)
@@ -666,9 +705,11 @@ function PlayState:sectionHit()
             self.camHUD.zoom = self.camHUD.zoom + 0.03
         end
     end
+    self:callOnLuas("onSectionHit")
 end
 
 function PlayState:update(dt)
+    self:callOnLuas("onUpdate", {dt})
     if self.health <= 0 then
         self.health = 0
     elseif self.health > 2 then
@@ -724,21 +765,27 @@ function PlayState:update(dt)
             end
             note.spawned = true
             note.camera = self.camHUD
+            self:callOnLuas("onCreatePost", {note})
             --print(#self.notes.members)
         end
     end
 
     -- set camGame to camFollow
-    --self.camGame.x = CoolUtil.coolLerp(self.camGame.x, self.camFollow.x, 0.04 * self.cameraSpeed)
-    --self.camGame.y = CoolUtil.coolLerp(self.camGame.y, self.camFollow.y, 0.04 * self.cameraSpeed)
-    self.camGame.x, self.camGame.y = self.camFollow.x, self.camFollow.y
-    self.camGame.target.x, self.camGame.target.y = self.camFollow.x, self.camFollow.y
+    --[[ self.camGame.x, self.camGame.y = self.camFollow.x, self.camFollow.y
+    self.camGame.target.x, self.camGame.target.y = self.camFollow.x, self.camFollow.y ]]
+    --[[   self.camGame.x = CoolUtil.coolLerp(self.camGame.x, self.camFollow.x, 1)
+    self.camGame.y = CoolUtil.coolLerp(self.camGame.y, self.camFollow.y, 1) ]]
     --print(self.camGame.x, self.camGame.y, self.camFollow.x, self.camFollow.y)
 
     if self.camZooming then
         self.camGame.zoom = math.lerp(self.defaultCamZoom, self.camGame.zoom, math.bound(1 - (dt * 3.125), 0, 1))
         self.camHUD.zoom = math.lerp(1, self.camHUD.zoom, math.bound(1 - (dt * 3.125), 0, 1))
     end
+
+    self.camGame.x = CoolUtil.coolLerp(self.camGame.x, self.camFollow.x, self.cameraSpeed*2)
+    self.camGame.y = CoolUtil.coolLerp(self.camGame.y, self.camFollow.y, self.cameraSpeed*2)
+    self.camGame.target.x = CoolUtil.coolLerp(self.camGame.target.x, self.camFollow.x, self.cameraSpeed*2)
+    self.camGame.target.y = CoolUtil.coolLerp(self.camGame.target.y, self.camFollow.y, self.cameraSpeed*2)
 
     if self.generatedMusic and not self.inCutscene and self.startedCountdown then
         if not self.cpuControlled then
@@ -833,6 +880,8 @@ function PlayState:update(dt)
             self:keyReleased(i)
         end
     end
+
+    self:callOnLuas("onUpdatePost")
 end
 
 function PlayState:checkEventNote()
@@ -941,6 +990,7 @@ function PlayState:triggerEvent(eventName, value1, value2, strumTime)
     if stage then
         stage:eventCalled(eventName, value1, value2, f1, f2, strumTime)
     end
+    self:callOnLuas("onEvent", {eventName, value1, value2, f1, f2, strumTime})
 end
 
 function PlayState:keyDown(key)
@@ -998,6 +1048,8 @@ function PlayState:opponentNoteHit(note)
     self:strumPlayAnim(true, math.floor(math.abs(note.noteData+1)), Conductor.stepCrochet * 1.25 / 1000 / self.playbackRate)
     note.hitByOpponent = true
 
+    self:callOnLuas("opponentNoteHit", {table.indexOf(self.notes.members, note), math.abs(note.noteData), note.noteType, note.isSustainNote})
+
     if not note.isSustainNote then
         note:kill()
         self.notes:remove(note)
@@ -1024,17 +1076,17 @@ function PlayState:endSong()
     if not self.startingSong then
         for i, note in ipairs(self.notes.members) do
             if note.strumTime < self.inst:tell("seconds") - Conductor.safeZoneOffset then
-                health = health - 0.05 * self.healthloss
+                self.health = self.health - 0.05 * self.healthloss
             end
         end
         for i, note in ipairs(self.sustainNotes.members) do
             if note.strumTime < self.inst:tell("seconds") - Conductor.safeZoneOffset then
-                health = health - 0.05 * self.healthloss
+                self.health = self.health - 0.05 * self.healthloss
             end
         end
         for i, note in ipairs(self.unspawnNotes) do
             if note.strumTime < self.inst:tell("seconds") - Conductor.safeZoneOffset then
-                health = health - 0.05 * self.healthloss
+                self.health = self.health - 0.05 * self.healthloss
             end
         end
 
@@ -1239,6 +1291,7 @@ function PlayState:noteMissCommon(direction, note)
     if self.vocals then
         self.vocals:setVolume(0)
     end
+
 end
 
 function PlayState:noteMiss(note)
@@ -1255,13 +1308,14 @@ function PlayState:noteMiss(note)
             self.sustainNotes:remove(note2)
         end
     end
-
+    
     if note.isSustainNote then
         self.sustainNotes:remove(note)
     else
         self.notes:remove(note)
     end
     self:noteMissCommon(note.noteData, note)
+    self:callOnLuas("noteMiss", {table.indexOf(self.notes.members, note), note.noteData, note.noteType, note.isSustainNote})
 end
 
 function PlayState:generateSong(dataPath)
@@ -1444,93 +1498,117 @@ function PlayState:makeEvent(event, i)
 end
 
 function PlayState:startCountdown()
+    if self.startedCountdown then
+        self:callOnLuas("onStartCountdown")
+        return
+    end
     if stage and stage.music then
         stage.music:stop()
     end
     self.seenCutscene = true
     self.inCutscene = false
+    local red = self:callOnLuas("onStartCountdown", nil, true)
 
     if skipCountdown then
         self.skipArrowTween = true
     end
 
-    self:generateStaticArrows(0)
-    self:generateStaticArrows(1)
+    if ret ~= FunkinLua.Function_Stop then
+        self:generateStaticArrows(0)
+        self:generateStaticArrows(1)
 
-    self.startedCountdown = true
-    Conductor.songPosition = -Conductor.crochet * 5
+        for i = 1, #self.playerStrums.members do
+            self:setOnLuas("defaultPlayerStrumX" .. i-1, self.playerStrums.members[i].x)
+            self:setOnLuas("defaultPlayerStrumY" .. i-1, self.playerStrums.members[i].y)
+        end
+        for i = 1, #self.opponentStrums.members do
+            self:setOnLuas("defaultOpponentStrumX" .. i-1, self.opponentStrums.members[i].x)
+            self:setOnLuas("defaultOpponentStrumY" .. i-1, self.opponentStrums.members[i].y)
+        end
+        for i = 1, #self.strumLineNotes.members do
+            self:setOnLuas("defaultStrumLineNote" .. i-1, {x = self.strumLineNotes.members[i].x, y = self.strumLineNotes.members[i].y})
+        end
+        self.startedCountdown = true
+        Conductor.songPosition = -Conductor.crochet * 5
+        --self:setOnLuas("startedCountdown", true)
+        self:callOnLuas("onCountdownStarted")
 
-    if self.skipCountdown then
-        Conductor.songPosition = 0
-        return true
-    end
-    self:moveCameraSection()
-    self.updateTime = true
+        if self.skipCountdown then
+            Conductor.songPosition = 0
+            return true
+        end
+        self:moveCameraSection()
+        self.updateTime = true
 
-    self.loops = 5
-    function self:doCountdown()
-        local startTimer = Timer.after(Conductor.crochet / 1000 / self.playbackRate, function()
-            if self.gf and self.loops % math.round(self.gfSpeed * self.gf.danceEveryNumBeats) == 0 and self.gf.curAnim and not self.gf.curAnim.name:startsWith("sing") then
-                self.gf:dance()
-            end
-            if self.loops % self.boyfriend.danceEveryNumBeats == 0 and self.boyfriend.curAnim ~= nil and not self.boyfriend.curAnim.name:startsWith("sing") then
-                self.boyfriend:dance()
-            end
-            if self.loops % self.dad.danceEveryNumBeats == 0 and self.dad.curAnim ~= nil and not self.dad.curAnim.name:startsWith("sing") then
-                self.dad:dance()
-            end
-
-            local introAssets = self.stageUI == "pixel" and {"pixel/pixelUI/ready-pixel", "pixel/pixelUI/set-pixel", "pixel/pixelUI/date-pixel"} or 
-                self.stageUI == "normal" and {"ui/ready", "ui/set", "ui/go"} or
-                {"ready", "set", "go"}
-            local antialias = not self.isPixelStage
-            local tick = "THREE"
-
-            local introSoundsSuffix = ""
-            if self.stageUI == "pixel" then
-                introSoundsSuffix = "-pixel"
-            end
-
-            if self.loops == 5 then
-                Sound.play(Paths.sound("assets/sounds/intro3" .. introSoundsSuffix .. ".ogg"))
-                tick = "THREE"
-            elseif self.loops == 4 then
-                self:createCountdownSprite(introAssets[1], antialias)
-                Sound.play(Paths.sound("assets/sounds/intro2" .. introSoundsSuffix .. ".ogg"))
-                tick = "TWO"
-            elseif self.loops == 3 then
-                self:createCountdownSprite(introAssets[2], antialias)
-                Sound.play(Paths.sound("assets/sounds/intro1" .. introSoundsSuffix .. ".ogg"))
-                tick = "ONE"
-            elseif self.loops == 2 then
-                self:createCountdownSprite(introAssets[3], antialias)
-                Sound.play(Paths.sound("assets/sounds/introGo" .. introSoundsSuffix .. ".ogg"))
-                tick = "GO"
-            elseif self.loops == 1 then
-                tick = "START"
-
-                -- play inst, and voices if it exists
-                if self.vocals then
-                    self.vocals:play()
+        self.loops = 5
+        function self:doCountdown()
+            local startTimer = Timer.after(Conductor.crochet / 1000 / self.playbackRate, function()
+                if self.gf and self.loops % math.round(self.gfSpeed * self.gf.danceEveryNumBeats) == 0 and self.gf.curAnim and not self.gf.curAnim.name:startsWith("sing") then
+                    self.gf:dance()
                 end
-                self.inst:play()
+                if self.loops % self.boyfriend.danceEveryNumBeats == 0 and self.boyfriend.curAnim ~= nil and not self.boyfriend.curAnim.name:startsWith("sing") then
+                    self.boyfriend:dance()
+                end
+                if self.loops % self.dad.danceEveryNumBeats == 0 and self.dad.curAnim ~= nil and not self.dad.curAnim.name:startsWith("sing") then
+                    self.dad:dance()
+                end
 
-                self.startingSong = false
+                local introAssets = self.stageUI == "pixel" and {"pixel/pixelUI/ready-pixel", "pixel/pixelUI/set-pixel", "pixel/pixelUI/date-pixel"} or 
+                    self.stageUI == "normal" and {"ui/ready", "ui/set", "ui/go"} or
+                    {"ready", "set", "go"}
+                local antialias = not self.isPixelStage
+                local tick = "THREE"
 
-                return true
-            end
+                local introSoundsSuffix = ""
+                if self.stageUI == "pixel" then
+                    introSoundsSuffix = "-pixel"
+                end
 
-            if stage then
-                stage:countdownTick(tick, self.loops)
-            end
+                if self.loops == 5 then
+                    Sound.play(Paths.sound("assets/sounds/intro3" .. introSoundsSuffix .. ".ogg"))
+                    tick = "THREE"
+                elseif self.loops == 4 then
+                    self:createCountdownSprite(introAssets[1], antialias)
+                    Sound.play(Paths.sound("assets/sounds/intro2" .. introSoundsSuffix .. ".ogg"))
+                    tick = "TWO"
+                elseif self.loops == 3 then
+                    self:createCountdownSprite(introAssets[2], antialias)
+                    Sound.play(Paths.sound("assets/sounds/intro1" .. introSoundsSuffix .. ".ogg"))
+                    tick = "ONE"
+                elseif self.loops == 2 then
+                    self:createCountdownSprite(introAssets[3], antialias)
+                    Sound.play(Paths.sound("assets/sounds/introGo" .. introSoundsSuffix .. ".ogg"))
+                    tick = "GO"
+                elseif self.loops == 1 then
+                    tick = "START"
 
-            self.loops = self.loops - 1
-            if self.loops > 0 then
-                self:doCountdown()
-            end
-        end)
+                    -- play inst, and voices if it exists
+                    if self.vocals then
+                        self.vocals:play()
+                    end
+                    self.inst:play()
+
+                    self:callOnLuas("onSongStart")
+
+                    self.startingSong = false
+
+                    return true
+                end
+
+                if stage then
+                    stage:countdownTick(tick, self.loops)
+                end
+                self:callOnLuas("onCountdownTick", {self.loops})
+
+                self.loops = self.loops - 1
+                if self.loops > 0 then
+                    self:doCountdown()
+                end
+            end)
+        end
+        self:doCountdown()
     end
-    self:doCountdown()
+    return true
 end
 
 function PlayState:createCountdownSprite(image, antialias)
@@ -1636,6 +1714,7 @@ function PlayState:keyPressed(key)
         spr:playAnim("pressed")
         spr.resetAnim = 0
     end
+    self:callOnLuas("onKeyPress", {key})
 end
 
 function PlayState:goodNoteHit(note)
@@ -1691,6 +1770,8 @@ function PlayState:goodNoteHit(note)
         local leData = math.round(math.abs(note.noteData+1))
         local leType = note.noteType
 
+        self:callOnLuas("goodNoteHit", {table.indexOf(self.notes.members, note), leData, leType, isSus})
+
         if not note.isSustainNote then
             note:kill()
             self.notes:remove(note)
@@ -1710,6 +1791,7 @@ function PlayState:keyReleased(key)
     end
 
     self.inputsArray[key] = false
+    self:callOnLuas("onKeyRelease", {key})
 end
 
 function PlayState:tweenCamIn()
@@ -1738,6 +1820,7 @@ function PlayState:beatHit()
     end
 
     self.super.beatHit(self)
+    self:callOnLuas("onBeatHit")
 end
 
 function PlayState:stepHit()
@@ -1745,6 +1828,8 @@ function PlayState:stepHit()
         stage:stepHit()
     end
     self.super.stepHit(self)
+
+    self:callOnLuas("onStepHit")
 end
 
 function PlayState:keysCheck()
@@ -1779,7 +1864,7 @@ end
 function PlayState:startLuasOnFolder(luaFile)
     for i, script in ipairs(self.luaArray) do
         if script.scriptName == luaFile then
-            return false
+            return self.luaArray[i]
         end
     end
 
@@ -1794,9 +1879,50 @@ function PlayState:startLuasOnFolder(luaFile)
     end
     if love.filesystem.getInfo(luaToLoad) then
         table.insert(self.luaArray, FunkinLua(luaToLoad))
-        return true
+        return self.luaArray[#self.luaArray]
     end
-    return false
+    return nil
+end
+
+function PlayState:callOnLuas(event, args, ignoreStops, exclusions, excludeValues)
+    local returnVal = FunkinLua.Function_Continue
+    local ignoreStops = (ignoreStops == nil) and false or ignoreStops
+    local args = args or {}
+    local exclusions = exclusions or {}
+    local excludeValues = excludeValues or {}
+
+    for i, script in ipairs(self.luaArray) do
+        if table.contains(exclusions, script.scriptName) then
+            goto continue
+        end
+        local myValue = script:call(event, args)
+        if myValue == FunkinLua.Function_Continue then
+            break
+        end
+
+        if myValue and myValue ~= FunkinLua.Function_Stop then
+            returnVal = myValue
+        end
+        ::continue::
+    end 
+    return returnVal
+end
+
+function PlayState:setOnLuas(variable, art, exclusions)
+    local exclusions = exclusions or {}
+    for i, script in ipairs(self.luaArray) do
+        if not table.contains(exclusions, script.scriptName) then
+            script:set(variable, art)
+        end
+    end
+end
+
+function PlayState:getLuaObject(tag, text)
+    local text = (text == nil) and true or text
+    if self.modchartSprites[tag] then return self.modchartSprites[tag] end
+    if text and self.modchartTexts[tag] then return self.modchartTexts[tag] end
+    if self.variables[tag] then return self.variables[tag] end
+    return nil
 end
 
 return PlayState

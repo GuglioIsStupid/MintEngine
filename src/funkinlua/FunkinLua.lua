@@ -4,6 +4,9 @@ local chunkMeta = {__index = _G}
 local Function_Stop = "##PSYCHLUA_FUNCTIONSTOP"
 local Function_Continue = "##PSYCHLUA_FUNCTIONCONTINUE"
 local Function_StopLua = "##PSYCHLUA_FUNCTIONSTOPLUA"
+FunkinLua.Function_Stop = Function_Stop
+FunkinLua.Function_Continue = Function_Continue
+FunkinLua.Function_StopLua = Function_StopLua
 
 FunkinLua.vars = {}
 FunkinLua.camTarget = nil
@@ -97,6 +100,10 @@ function FunkinLua:new(scriptName)
 		self:set('defaultPlayerStrumY'.. i-1, 0);
 		self:set('defaultOpponentStrumX' .. i-1, 0);
 		self:set('defaultOpponentStrumY' .. i-1, 0);
+    end
+
+    for i = 1, 8 do
+        self:set("strumLineNotes" .. i-1, {x=0, y=0})
     end
 
     self:set('defaultBoyfriendX', PlayState.BF_X);
@@ -303,7 +310,7 @@ function FunkinLua:new(scriptName)
             local killMe = variable:split(".")
             local spr = LuaUtils.getObjectDirectly(killMe[1])
             if #killme > 1 then
-                spr = LuaUtils.getVarInArray(LuaUtils.propertyLoop(killMe), killMe[#killMe])
+                spr = LuaUtils.getVarInArray(PlayState, LuaUtils.propertyLoop(killMe), killMe[#killMe])
             end
 
             if spr and image and #image > 0 then
@@ -355,7 +362,7 @@ function FunkinLua:new(scriptName)
             local killMe = obj:split(".")
             local poop = LuaUtils.getObjectDirectly(killMe[1])
             if #killMe > 1 then
-                poop = LuaUtils.getVarInArray(LuaUtils.getPropertyLoop(killMe), killMe[#killMe])
+                poop = LuaUtils.getVarInArray(PlayState, LuaUtils.getPropertyLoop(killMe, false))
             end
 
             if poop then
@@ -393,6 +400,166 @@ function FunkinLua:new(scriptName)
         end
     )
     self:set(
+        "makeAnimatedLuaSprite",
+        function(tag, image, x, y, spriteType)
+            local x = x or 0
+            local y = y or 0
+            local spriteType = spriteType or "sparrow"
+
+            LuaUtils.resetSpriteTag(tag)
+            local leSprite = ModchartSprite(x, y)
+            LuaUtils.loadFrames(leSprite, image, spriteType)
+            PlayState.modchartSprites[tag] = leSprite
+        end
+    )
+    self:set(
+        "addAnimationByPrefix",
+        function(obj, name, prefix, framerate, loop)
+            local framerate = framerate or 24
+            local loop = (loop == nil) and true or loop
+            local obj = LuaUtils.getObjectDirectly(obj, false)
+            if obj and obj.frames then
+                obj:addByPrefix(name, prefix, framerate, loop)
+                if not obj.curAnim then
+                    obj:play(name, true)
+                end
+                return true
+            end
+            return false
+        end
+    )
+    self:set(
+        "objectPlayAnimation", -- depracted, gotta add the old one
+        function(obj, name, forced, startFrame)
+            local startFrame = startFrame and startFrame+1 or 1
+            if PlayState:getLuaObject(obj, false) then
+                PlayState:getLuaObject(obj, false):play(name, forced, startFrame)
+                return true
+            end
+
+            local spr = LuaUtils.getTargetInstance()[obj]
+            if spr then
+                spr:play(name, forced, startFrame)
+                return true
+            end
+            return false
+        end
+    )
+    self:set(
+        "makeGraphic",
+        function(obj, width, height, color)
+            local width = width or 256
+            local height = height or 256
+            local color = color or "FFFFFF"
+
+            local spr = PlayState:getLuaObject(obj, false)
+            if spr then
+                spr:makeGraphic(width, height, hexToColor(color))
+                return
+            end
+
+            local object = LuaUtils.getTargetInstance()[obj]
+            if object then
+                object:makeGraphic(width, height, hexToColor(color))
+            end
+        end
+    )
+    self:set(
+        "screenCenter",
+        function(obj, pos)
+            local pos = pos and pos:upper() or "XY"
+            local spr = PlayState:getLuaObject(obj)
+
+            if not spr then
+                local killme = obj.split(".")
+                spr = LuaUtils.getObjectDirectly(killMe[1])
+                if #killMe > 1 then
+                    spr = LuaUtils.getVarInArray(PlayState, LuaUtils.getPropertyLoop(killMe, false))
+                end
+            end
+
+            if spr then
+                spr:screenCenter(pos)
+                return
+            end
+
+            print("Error: screenCenter called with invalid object name")
+        end
+    )
+    self:set(
+        "setProperty",
+        function(variable, value)
+            local killMe = variable:split(".")
+            if #killMe > 1 then
+                if PlayState[killMe[1]] then
+                    PlayState[killMe[1]][killMe[2]] = value
+                elseif PlayState.modchartSprites[killMe[1]] then
+                    PlayState.modchartSprites[killMe[1]][killMe[2]] = value
+                elseif PlayState.modchartTexts[killMe[1]] then
+                    PlayState.modchartTexts[killMe[1]][killMe[2]] = value
+                end
+            end
+            if PlayState[variable] then
+                PlayState[variable] = value
+            elseif PlayState.modchartSprites[variable] then
+                PlayState.modchartSprites[variable] = value
+            elseif PlayState.modchartTexts[variable] then
+                PlayState.modchartTexts[variable] = value
+            end
+        end 
+    )
+    self:set(
+        "getProperty",
+        function(variable)
+            local killMe = variable:split(".")
+            if #killMe > 1 then
+                if PlayState[killMe[1]] then
+                    return PlayState[killMe[1]][killMe[2]]
+                elseif PlayState.modchartSprites[killMe[1]] then
+                    return PlayState.modchartSprites[killMe[1]][killMe[2]]
+                elseif PlayState.modchartTexts[killMe[1]] then
+                    return PlayState.modchartTexts[killMe[1]][killMe[2]]
+                end
+            end
+            if PlayState[variable] then
+                return PlayState[variable]
+            elseif PlayState.modchartSprites[variable] then
+                return PlayState.modchartSprites[variable]
+            elseif PlayState.modchartTexts[variable] then
+                return PlayState.modchartTexts[variable]
+            end
+        end
+    )
+    self:set(
+        "getPropertyFromClass",
+        function(class, var)
+            return _G[class][var]
+        end
+    )
+    self:set(
+        "doTweenAlpha",
+        function(tag, vars, value, duration, ease)
+            self:oldTweenFunction(tag, vars, {alpha = value}, duration, ease, "doTweenAlpha")
+        end
+    )
+    self:set(
+        "doTweenColor",
+        function(tag, vars, targetColor, duration, ease)
+            local penisExam = LuaUtils:tweenPrepare(tag, vars) -- the ACTUAL name for it... what the fuck??
+            if penisExam then
+                local curColor = penisExam.color
+                curColor.alphaFloat = penisExam.alpha
+                PlayState.modchartTweens[tag] = Timer.tween(
+                    duration, penisExam, {color = hexToColor(targetColor)}, LuaUtils.getTweenEaseByString(ease),
+                    function(twn)
+                        PlayState.modchartTweens[tag] = nil
+                        PlayState:callOnLuas("onTweenCompleted", {tag, vars})
+                    end
+                )
+            end
+        end
+    )
+    self:set(
         "close",
         function()
             closed = true
@@ -410,15 +577,30 @@ function FunkinLua:call(func, args)
 
     TryExcept(
         function()
-            print("BALLLLLLS")
             if not self.vars then return Function_Continue end
             -- call the function
-            if self.vars[func] then self.vars[func](args) end
+            -- make sure args isn't a table when its called! simple just to make it betyter
+            if self.vars[func] then self.vars[func](unpack(args)) end
         end,
         function(err)
             print("ERROR! " .. err)
         end
     )
+end
+
+function FunkinLua:oldTweenFunction(tag, vars, tweenValue, duration, ease, tweenType)
+    local target = LuaUtils.tweenPrepare(tag, vars)
+    if target then
+        PlayState.modchartTweens[tag] = Timer.tween(
+            duration, target, tweenValue, LuaUtils.getTweenEaseByString(ease),
+            function(twn)
+                PlayState.modchartTweens[tag] = nil
+                PlayState:callOnLuas("onTweenCompleted", {tag, vars})
+            end
+        )
+    else
+        print("Error: " .. tweenType .. " called with invalid object name")
+    end
 end
 
 return FunkinLua
