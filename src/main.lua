@@ -74,6 +74,11 @@ function love.load()
     Trail = require "modules.flixel.Trail"
     Point = require "modules.flixel.math.Point"
 
+    -- FunkinLua
+    ModchartSprite = require "FunkinLua.ModchartSprite"
+    LuaUtils = require "FunkinLua.LuaUtils"
+    FunkinLua = require "FunkinLua.FunkinLua"
+
     -- Objects
     StrumNote = require "objects.StrumNote"
     Note = require "objects.Note"

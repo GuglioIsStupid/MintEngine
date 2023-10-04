@@ -134,6 +134,8 @@ PlayState.boyfriendCameraOffset = {x=0,y=0}
 PlayState.dadCameraOffset = {x=0,y=0}
 PlayState.girlfriendCameraOffset = {x=0,y=0}
 
+PlayState.luaArray = {}
+
 PlayState.precacheList = {}
 PlayState.songName = ""
 
@@ -149,6 +151,8 @@ PlayState.noteTypes = {}
 PlayState.eventsPushed = {}
 
 PlayState.members = {}
+
+PlayState.modchartSprites = {}
 
 function PlayState:resetValues()
     -- call everything defined to the default
@@ -247,6 +251,8 @@ function PlayState:resetValues()
     self.skipCountdown = false
     self.songLength = 0
 
+    self.luaArray = {}
+
     self.precacheList = {}
 
     self.ratingName = "?"
@@ -267,10 +273,18 @@ function PlayState:resetValues()
     self.startingSong = true
 
     self.antialiasing = false
+
+    self.modchartSprites = {}
 end
 
-function PlayState:add(member)
-    table.insert(self.members, member)
+function PlayState:add(member, pos)
+    local pos = pos or -1
+    if pos == -1 then
+        table.insert(self.members, member)
+    else
+        print("inserting at " .. position)
+        table.insert(self.members, position, member)
+    end
 end
 
 function PlayState:remove(member)
@@ -380,7 +394,9 @@ function PlayState:enter()
         self.girlfriendCameraOffset = {0, 0}
     end
 
-    if self.curStage == "spooky" then
+    if self.curStage == "stage" then
+        stage = Stages.Stage()
+    elseif self.curStage == "spooky" then
         stage = Stages.Spooky()
     elseif self.curStage == "philly" then
         stage = Stages.Philly()
@@ -396,8 +412,10 @@ function PlayState:enter()
         stage = Stages.SchoolEvil()
     elseif self.curStage == "tank" then
         stage = Stages.Tank()
-    else -- Always default to stage
-        stage = Stages.Stage()
+    end
+
+    if MODS_ALLOWED then
+        self:startLuasOnFolder("stages/" .. self.curStage .. ".lua")
     end
 
     if not stageData.hide_girlfriend then
@@ -438,7 +456,9 @@ function PlayState:enter()
 
     self.camFollow.x, self.camFollow.y = camPos.x, camPos.y
 
-    stage:createPost()
+    if stage then
+        stage:createPost()
+    end
     Conductor.songPosition = -5000 / Conductor.songPosition
 
     self:add(self.combos)
@@ -654,7 +674,9 @@ function PlayState:update(dt)
     elseif self.health > 2 then
         self.health = 2
     end
-    stage:update(dt)
+    if stage then
+        stage:update(dt)
+    end
     self.super.update(self, dt)
     if self.generatedMusic and self.updateTime and not self.inCutscene then
         Conductor.songPosition = Conductor.songPosition + 1000 * dt
@@ -916,7 +938,9 @@ function PlayState:triggerEvent(eventName, value1, value2, strumTime)
     end
 
     --print("Event: " .. eventName .. " | " .. value1 .. " | " .. value2 .. " | " .. strumTime)
-    stage:eventCalled(eventName, value1, value2, f1, f2, strumTime)
+    if stage then
+        stage:eventCalled(eventName, value1, value2, f1, f2, strumTime)
+    end
 end
 
 function PlayState:keyDown(key)
@@ -1262,8 +1286,21 @@ function PlayState:generateSong(dataPath)
     noteData = songData.notes
 
     local file = "assets/data/" .. dataPath .. "/events.json"
-    if love.filesystem.getInfo(file) then
-        local eventsData = Song:loadFromJson("events", self.songName).events
+    if MODS_ALLOWED then
+        if love.filesystem.getInfo(Paths.modsJson(self.songName .. "/events")) then
+            file = Paths.modsJson(self.songName .. "/events")
+        end
+    end
+    if love.filesystem.getInfo(file) or #songData.events > 0 then
+        local eventsData
+        if love.filesystem.getInfo(file) then
+            eventsData = json.decode(love.filesystem.read(file))
+        else
+            eventsData = songData.events
+        end
+        if #eventsData < 1 then
+            eventsData = songData.events
+        end
         for _, event in ipairs(eventsData) do
             for i = 1, #event[2] do
                 -- avoid duplicate events
@@ -1275,7 +1312,7 @@ function PlayState:generateSong(dataPath)
                     end
                 end
 
-                if not found then -- why does psytch have 2 formats
+                if not found then -- why does psych have 2 formats
                     if type(event[2][1]) ~= "table" then
                         self:makeEvent(event, i)
                     else
@@ -1361,7 +1398,9 @@ function PlayState:eventPushed(event)
         return
     end
 
-    stage:eventPushed(event)
+    if stage then
+        stage:eventPushed(event)
+    end
     table.insert(self.eventsPushed, event.event)
 end
 
@@ -1405,7 +1444,7 @@ function PlayState:makeEvent(event, i)
 end
 
 function PlayState:startCountdown()
-    if stage.music then
+    if stage and stage.music then
         stage.music:stop()
     end
     self.seenCutscene = true
@@ -1481,7 +1520,9 @@ function PlayState:startCountdown()
                 return true
             end
 
-            stage:countdownTick(tick, self.loops)
+            if stage then
+                stage:countdownTick(tick, self.loops)
+            end
 
             self.loops = self.loops - 1
             if self.loops > 0 then
@@ -1678,7 +1719,9 @@ function PlayState:tweenCamIn()
 end
 
 function PlayState:beatHit()
-    stage:beatHit()
+    if stage then
+        stage:beatHit()
+    end
     self.iconP1.scale = {x=1.2, y=1.2}
     self.iconP2.scale = {x=1.2, y=1.2}
     self.iconP1:updateHitbox()
@@ -1698,7 +1741,9 @@ function PlayState:beatHit()
 end
 
 function PlayState:stepHit()
-    stage:stepHit()
+    if stage then
+        stage:stepHit()
+    end
     self.super.stepHit(self)
 end
 
@@ -1727,6 +1772,31 @@ function PlayState:keysCheck()
             self.boyfriend:dance()
         end
     end
+end
+
+-- lua script shits
+
+function PlayState:startLuasOnFolder(luaFile)
+    for i, script in ipairs(self.luaArray) do
+        if script.scriptName == luaFile then
+            return false
+        end
+    end
+
+    local luaToLoad
+    if MODS_ALLOWED then
+        luaToLoad = Paths.modFolders(luaFile)
+        if not love.filesystem.getInfo(luaToLoad) then
+            luaToLoad = "assets/" .. luaFile
+        end
+    else
+        luaToLoad = "assets/" .. luaFile
+    end
+    if love.filesystem.getInfo(luaToLoad) then
+        table.insert(self.luaArray, FunkinLua(luaToLoad))
+        return true
+    end
+    return false
 end
 
 return PlayState
