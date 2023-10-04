@@ -2,7 +2,32 @@ local Paths = {}
 
 Paths.imageType = "dds"
 
+function Paths.getPath(file, modsAllowed)
+    if MODS_ALLOWED then
+        if modsAllowed then
+            local modded = Paths.modFolders(file)
+            if love.filesystem.getInfo(modded) then
+                return modded
+            end
+        end
+    end
+
+    return "assets/" .. file
+end
+
 function Paths.image(path)
+    local file = nil
+    if MODS_ALLOWED then
+        file = Paths.modsImages(path)
+        if Cache.members.image[file] then
+            return Cache.members.image[file]
+        elseif Cache.members.preload.image[file] then
+            return Cache.members.preload.image[file]
+        elseif love.filesystem.getInfo(file) then
+            Cache.members.image[file] = love.graphics.newImage(file)
+            return Cache.members.image[file]
+        end
+    end
     local path_ = "assets/images/" .. Paths.imageType .. "/" .. path .. "." .. Paths.imageType
     if not love.filesystem.getInfo(path_) then
         path_ = "assets/images/png/" .. path .. ".png"
@@ -29,6 +54,17 @@ function Paths.sound(path)
 end
 
 function Paths.font(path, size)
+    if MODS_ALLOWED then
+        local file = Paths.modsFont(path)
+        if Cache.members.font[file] then
+            return Cache.members.font[file]
+        elseif Cache.members.preload.font[file] then
+            return Cache.members.preload.font[file]
+        elseif love.filesystem.getInfo(file) then
+            Cache.members.font[file] = love.graphics.newFont(file, size)
+            return Cache.members.font[file]
+        end
+    end
     if Cache.members.font[path .. size] then
         return Cache.members.font[path .. size]
     elseif Cache.members.preload.font[path .. size] then
@@ -37,6 +73,24 @@ function Paths.font(path, size)
         Cache.members.font[path .. size] = love.graphics.newFont(path, size)
         return Cache.members.font[path .. size]
     end
+end
+
+function Paths.fileExists(key, ignoreMods)
+    if MODS_ALLOWED then
+        if not ignoreMods then
+            for i, mod in ipairs(Mods:getGlobalMods()) do
+                if love.filesystem.getInfo(self.mods(mod .. "/" .. key)) then
+                    return true
+                end
+
+                if love.filesystem.getInfo(self.mods(Mods.currentModDirectory .. "/" .. key)) or love.filesystem.getInfo(self.mods(key)) then
+                    return true
+                end
+            end
+        end
+    end
+
+    return love.filesystem.getInfo("assets/" .. key)
 end
 
 function Paths.shader(path)
@@ -81,18 +135,28 @@ function Paths.getAtlas(graphic, data) -- either packer or sparrow
     -- is extensions included?
     if not data:find(".xml") and not data:find(".txt") then
         -- check if xml exists
-        if love.filesystem.getInfo(data .. ".xml") then
-            return Paths.getSparrowAtlas(graphic, love.filesystem.read(data .. ".xml"))
-        elseif love.filesystem.getInfo(data .. ".txt") then
-            return Paths.getPackerAtlas(graphic, data .. ".txt")
+        if love.filesystem.getInfo("assets/images/png/" .. data .. ".xml") or (MODS_ALLOWED and love.filesystem.getInfo(Paths.modsXml(data))) then
+            if love.filesystem.getInfo(Paths.modsXml(data)) then
+                data = Paths.modsXml(data)
+            else
+                data = "assets/images/png/" .. data .. ".xml"
+            end
+            return Paths.getSparrowAtlas(graphic, love.filesystem.read(data))
+        elseif love.filesystem.getInfo("assets/images/png/" .. data .. ".txt") or (MODS_ALLOWED and love.filesystem.getInfo(Paths.modsTxt(data))) then
+            if love.filesystem.getInfo(Paths.modsTxt(data)) then
+                data = Paths.modsTxt(data)
+            else
+                data = "assets/images/png/" .. data .. ".txt"
+            end
+            return Paths.getPackerAtlas(graphic, data)
         else
             return nil
         end
     end
     if data:find(".xml") then
-        return Paths.getSparrowAtlas(graphic, love.filesystem.read(data))
+        return Paths.getSparrowAtlas(graphic, love.filesystem.read("assets/images/png/" .. data))
     else
-        return Paths.getPackerAtlas(graphic, data)
+        return Paths.getPackerAtlas(graphic, "assets/images/png/" .. data)
     end
 end
 
@@ -286,6 +350,104 @@ function Paths.formatToSongPath(path)
     local hideChars = "[.,'\"%?!]"
     local path = path:gsub(" ", "-"):gsub(invalidChars, "-"):gsub(hideChars, ""):lower()
     return path
+end
+
+function Paths.voices(path)
+    if MODS_ALLOWED then
+        if love.filesystem.getInfo(Paths.modsSongs(path .. "/Voices")) then
+            return Paths.modsSongs(path .. "/Voices")
+        else
+            -- load normal
+            return "assets/songs/" .. path .. "/Voices.ogg"
+        end
+    else
+        return "assets/songs/" .. path .. "/Voices.ogg"
+    end
+end
+
+function Paths.inst(path)
+    if MODS_ALLOWED then
+        if love.filesystem.getInfo(Paths.modsSongs(path .. "/Inst")) then
+            return Paths.modsSongs(path .. "/Inst")
+        else
+            -- load normal
+            return "assets/songs/" .. path .. "/Inst.ogg"
+        end
+    else
+        return "assets/songs/" .. path .. "/Inst.ogg"
+    end
+end
+
+if MODS_ALLOWED then
+    function Paths.mods(key)
+        return "mods/" .. (key or "")
+    end
+
+    function Paths.modsFont(key)
+        return Paths.modFolders("fonts/" .. key)
+    end
+
+    function Paths.modsJson(key)
+        return Paths.modFolders("data/" .. key .. ".json")
+    end
+
+    function Paths.modsVideo(key)
+        return Paths.modFolders("videos/" .. key .. "." .. VIDEO_EXT)
+    end
+
+    function Paths.modsSounds(path, key)
+        return Paths.modFolders(path .. "/" .. key .. "." .. SOUND_EXT)
+    end
+
+    function Paths.modsSongs(key)
+        return Paths.modFolders("songs/" .. key .. ".ogg")
+    end
+
+    function Paths.modsImages(key)
+        return Paths.modFolders("images/" .. key .. ".png")
+    end
+
+    function Paths.modsXml(key)
+        return Paths.modFolders("images/" .. key .. ".xml")
+    end
+
+    function Paths.modsTxt(key)
+        return Paths.modFolders("images/" .. key .. ".txt")
+    end
+
+    function Paths.modFolders(key)
+        -- replace all // with /
+        while key:find("//") do
+            key = key:gsub("//", "/")
+        end
+        if Mods.currentModDirectory ~= nil and Mods.currentModDirectory:len() > 0 then
+            local fileToCheck = Paths.mods(Mods.currentModDirectory .. "/" .. key)
+            if love.filesystem.getInfo(fileToCheck) then
+                -- replace ALL double / with single /
+                while fileToCheck:find("//") do
+                    fileToCheck = fileToCheck:gsub("//", "/")
+                end
+                return fileToCheck
+            end
+        end
+
+        for i, mod in ipairs(Mods:getGlobalMods()) do
+            local fileToCheck = Paths.mods(mod .. "/" .. key)
+            if love.filesystem.getInfo(fileToCheck) then
+                while fileToCheck:find("//") do
+                    fileToCheck = fileToCheck:gsub("//", "/")
+                end
+                return fileToCheck
+            end
+        end
+
+        local path = "mods/" .. Mods.currentModDirectory .. key
+        -- replace ALL double / with single /
+        while path:find("//") do
+            path = path:gsub("//", "/")
+        end
+        return path
+    end
 end
 
 return Paths

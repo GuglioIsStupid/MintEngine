@@ -13,7 +13,7 @@ function BGSprite:new(image, x, y, scrollX, scrollY, animArray, loop)
     self.idleAnim = ""
 
     if animArray then
-        self:setFrames(Paths.getAtlas(image, "assets/images/png/" .. image .. ".xml"))
+        self:setFrames(Paths.getAtlas(image, image .. ".xml"))
         for i = 1, #animArray do
             local anim = animArray[i]
             self:addByPrefix(anim, anim, 24, loop)

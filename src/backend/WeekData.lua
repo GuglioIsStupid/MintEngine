@@ -62,8 +62,18 @@ function WeekData:reloadWeekFiles(isStoryMode)
 
     WeekData.weeksList = {}
     WeekData.weeksLoaded = {}
-    local directories = {"assets/"}
-    local originalLength = #directories
+    local directories, originalLength
+    if MODS_ALLOWED then
+        directories = {Paths.mods(), "assets/"}
+        originalLength = #directories
+
+        for i, mod in ipairs(Mods:parseList().enabled) do
+            table.insert(directories, Paths.mods(mod .. "/"))
+        end 
+    else
+        directories = {"assets/"}
+        originalLength = #directories
+    end
 
     local sexList = {}
     for line in love.filesystem.lines("assets/weeks/weekList.txt") do
@@ -80,9 +90,42 @@ function WeekData:reloadWeekFiles(isStoryMode)
                 if week then
                     local weekFile = WeekData(week, sexList[i])
 
+                    if MODS_ALLOWED then
+                        if j >= originalLength then
+                            local pathsmods = Paths.mods()
+                            weekFile.folder = directories[j]:sub(#pathsmods, #directories[j])
+                        end
+                    end
+
                     if weekFile and (not isStoryMode or (isStoryMode and not weekFile.hideStoryMode) or (not isStoryMode and not weekFile.hideFreeplay)) then
                         table.insert(WeekData.weeksList, sexList[i])
                         WeekData.weeksLoaded[sexList[i]] = weekFile
+                    end
+                end
+            end
+        end
+    end
+
+    if MODS_ALLOWED then
+        for i = 1, #directories do
+            local directory = directories[i] .. "weeks/"
+            if love.filesystem.getInfo(directory) and not directory:find("assets/") then
+                --local listOfWeeks = CoolUtil.coolTextFile(directory .. "weekList.txt")
+                if not love.filesystem.getInfo(directory .. "weekList.txt") then
+                    love.filesystem.write(directory .. "weekList.txt", "")
+                end
+                local listOfWeeks = love.filesystem.lines(directory .. "weekList.txt")
+                for daWeek in listOfWeeks do
+                    local path = directory .. daWeek .. ".json"
+                    if love.filesystem.getInfo(path) then
+                        self:addWeek(daWeek, path, directories[i], i, originalLength)
+                    end
+                end
+
+                for i, file in ipairs(love.filesystem.getDirectoryItems(directory)) do
+                    local path = directory .. file
+                    if love.filesystem.getInfo(path).type ~= "directory" and file:endsWith(".json") then
+                        self:addWeek(file:sub(1, #file - 4), path, directory:gsub("weeks/", ""), i, originalLength)
                     end
                 end
             end
@@ -96,7 +139,9 @@ function WeekData:addWeek(weekToCheck, path, directory, i, originalLength)
         if week then
             local weekFile = WeekData(week, weekToCheck)
             if i >= originalLength then
-                -- mods
+                if MODS_ALLOWED then
+                    weekFile.folder = directory:sub(#Paths.mods(), #directory)
+                end
             end
 
             if (PlayState.isStoryMode and not weekFile.hideStoryMode) or (not PlayState.isStoryMode and not weekFile.hideFreeplay) then
@@ -110,10 +155,21 @@ end
 function WeekData:getWeekFile(path)
     local rawJson = nil
 
-    if love.filesystem.getInfo(path) then
-        rawJson = love.filesystem.read(path)
+    if MODS_ALLOWED then
+        local modPath = Paths.modFolders(path)
+        if love.filesystem.getInfo(modPath) then
+            rawJson = love.filesystem.read(modPath)
+        elseif love.filesystem.getInfo(path) then
+            rawJson = love.filesystem.read(path)
+        else
+            return nil
+        end
     else
-        return nil
+        if love.filesystem.getInfo(path) then
+            rawJson = love.filesystem.read(path)
+        else
+            return nil
+        end
     end
 
     if rawJson and rawJson ~= "" then
@@ -131,8 +187,10 @@ function WeekData:getCurrentWeek()
     return self.weeksLoaded[self.weeksList[PlayState.storyWeek]]
 end
 
-function setDirectoryFromWeek(data)
-    -- mods shit
+function WeekData:setDirectoryFromWeek(data)
+    if data and data.folder and #data.folder > 0 then
+        Mods.currentModDirectory = data.folder
+    end
 end
 
 return WeekData

@@ -31,7 +31,7 @@ MainMenuState.camGame = nil
 MainMenuState.optionShit = {
     "story_mode",
     "freeplay",
-    -- "mods", -- todo. psych engine mod folder support
+    MODS_ALLOWED and "mods" or nil, -- todo. psych engine mod folder support
     "credits",
     love.system.getOS() ~= "switch" and "donate" or nil,
     "options"
@@ -53,6 +53,10 @@ function MainMenuState:resetValues()
 end
 
 function MainMenuState:enter()
+    if MODS_ALLOWED then
+        Mods:pushGlobalMods()
+    end
+    Mods:loadTopMod()
     self:resetValues()
     self.camGame = Camera()
 
@@ -90,7 +94,7 @@ function MainMenuState:enter()
         local offset = 108 - (math.max(#self.optionShit, 4) - 4) * 80
         local menuItem = Sprite(0, ((i-1) * 140) + offset)
         menuItem.scale.x, menuItem.scale.y = scale, scale
-        menuItem:setFrames(Paths.getAtlas("menu/menu_" .. self.optionShit[i], "assets/images/png/menu/menu_" .. self.optionShit[i] .. ".xml"))
+        menuItem:setFrames(Paths.getAtlas("menu/menu_" .. self.optionShit[i], "menu/menu_" .. self.optionShit[i] .. ".xml"))
         menuItem:addByPrefix("idle", self.optionShit[i] .. " basic", 24)
         menuItem:addByPrefix("selected", self.optionShit[i] .. " white", 24)
         menuItem:play("idle")

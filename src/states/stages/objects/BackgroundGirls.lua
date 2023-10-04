@@ -9,7 +9,7 @@ function BackgroundGirls:new(x, y)
 
     self.super.new(self, x, y)
 
-    self:setFrames(Paths.getAtlas("stages/school/bgFreaks", "assets/images/png/stages/school/bgFreaks.xml"))
+    self:setFrames(Paths.getAtlas("stages/school/bgFreaks", "stages/school/bgFreaks.xml"))
     self.antialiasing = false
     self:swapDanceType()
 

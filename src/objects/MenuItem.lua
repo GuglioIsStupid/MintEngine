@@ -13,7 +13,7 @@ function MenuItem:new(x, y, weekName)
     self.flashingInt = 0
     self.isFlashing = false
 
-    self:load("menu/storymenu/" .. weekName)
+    self:load("storymenu/" .. weekName)
 end
 
 function MenuItem:startFlashing()

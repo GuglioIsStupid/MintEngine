@@ -1,4 +1,5 @@
 function love.load()
+    require "config"
     -- Libraries
 
     local note_left, note_right, note_up, note_down, accept, back
@@ -48,6 +49,7 @@ function love.load()
     locale = json.decode(love.filesystem.read("locales/" .. cur_locale .. ".json")) ]]
 
     -- Modules
+    Mods = require "backend.Mods"
     require "modules.override"
     CoolUtil = require "modules.CoolUtil"
     Paths = require "backend.Paths"

@@ -80,7 +80,7 @@ function Stage:schoolIntro()
     self:add(red)
 
     self.senpaiEvil = Sprite()
-    self.senpaiEvil:setFrames(Paths.getAtlas("pixel/senpaiCrazy", "assets/images/png/pixel/senpaiCrazy.xml"))
+    self.senpaiEvil:setFrames(Paths.getAtlas("pixel/senpaiCrazy", "pixel/senpaiCrazy.xml"))
     self.senpaiEvil:addByPrefix("idle", "Senpai Pre Explosion", 24, false)
     self.senpaiEvil:setGraphicSize(math.floor(self.senpaiEvil.width * 6))
     self.senpaiEvil:updateHitbox()

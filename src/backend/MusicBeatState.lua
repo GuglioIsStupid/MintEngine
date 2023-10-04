@@ -28,6 +28,8 @@ function MusicBeatState:enter()
     self.camBeat = nil
 
     self.timePassedOnState = 0
+
+    if MODS_ALLOWED then Mods.updatedOnstate = false end
 end
 
 function MusicBeatState:update(dt)

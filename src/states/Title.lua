@@ -4,25 +4,25 @@ TitleState.music = love.audio.newSource("assets/music/freakyMenu.ogg", "stream")
 TitleState.music:setLooping(true)
     
 function TitleState:enter()
-    
+    Mods:loadTopMod()
     if not TitleState.music:isPlaying() then
         TitleState.music:play()
     end
     self.danceLeft = true
     Conductor.changeBPM(102)
     self.logo = Sprite(-150, -100)
-    self.logo:setFrames(Paths.getAtlas("menu/logoBumpin", "assets/images/png/menu/logoBumpin.xml"))
+    self.logo:setFrames(Paths.getAtlas("menu/logoBumpin", "menu/logoBumpin.xml"))
     self.logo:addByPrefix("bump", "logo bumpin", 24, false)
     self.logo:play("bump")
 
     self.gfTitle = Sprite(512, 40)
-    self.gfTitle:setFrames(Paths.getAtlas("menu/gfDanceTitle", "assets/images/png/menu/gfDanceTitle.xml"))
+    self.gfTitle:setFrames(Paths.getAtlas("menu/gfDanceTitle", "menu/gfDanceTitle.xml"))
     self.gfTitle:addByIndices("danceLeft", "gfDance", {30, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15}, 24, false)
     self.gfTitle:addByIndices("danceRight", "gfDance", {16, 17, 18, 19, 20, 21, 22, 23, 24, 25, 26, 27, 28, 29}, 24, false)
     self.gfTitle:play("danceLeft")
 
     self.enterText = Sprite(100, 576)
-    self.enterText:setFrames(Paths.getAtlas("menu/titleEnter", "assets/images/png/menu/titleEnter.xml"))
+    self.enterText:setFrames(Paths.getAtlas("menu/titleEnter", "menu/titleEnter.xml"))
     self.enterText:addByPrefix("idle", "Press Enter to Begin", 24, true)
     self.enterText:addByPrefix("flash", "ENTER PRESSED", 24, false)
     self.enterText:play("idle")

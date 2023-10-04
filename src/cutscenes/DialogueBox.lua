@@ -48,13 +48,13 @@ function DialogueBox:new(talkingRight, dialogueList)
     self.box = Sprite(-20, 45)
     local songName = PlayState.SONG.song:lower()
     if songName == "senpai" then
-        self.box:setFrames(Paths.getAtlas("pixel/pixelUI/dialogueBox-pixel", "assets/images/png/pixel/pixelUI/dialogueBox-pixel.xml"))
+        self.box:setFrames(Paths.getAtlas("pixel/pixelUI/dialogueBox-pixel", "pixel/pixelUI/dialogueBox-pixel.xml"))
         self.box:addByPrefix("normalOpen", "Text Box Appear", 24, false)
     elseif songName == "roses" then
-        self.box:setFrames(Paths.getAtlas("pixel/pixelUI/dialogueBox-senpaiMad", "assets/images/png/pixel/pixelUI/dialogueBox-senpaiMad.xml"))
+        self.box:setFrames(Paths.getAtlas("pixel/pixelUI/dialogueBox-senpaiMad", "pixel/pixelUI/dialogueBox-senpaiMad.xml"))
         self.box:addByPrefix("normalOpen", "SENPAI ANGRY IMPACT SPEECH", 24, false)
     elseif songName == "thorns" then
-        self.box:setFrames(Paths.getAtlas("pixel/pixelUI/dialogueBox-evil", "assets/images/png/pixel/pixelUI/dialogueBox-evil.xml"))
+        self.box:setFrames(Paths.getAtlas("pixel/pixelUI/dialogueBox-evil", "pixel/pixelUI/dialogueBox-evil.xml"))
         self.box:addByPrefix("normalOpen", "Spirit Textbox spawn", 24, false)
 
         self.face = Sprite(225, -100)
@@ -68,7 +68,7 @@ function DialogueBox:new(talkingRight, dialogueList)
     self.dialogueList = dialogueList
 
     self.portraitLeft = Sprite(-20, 40)
-    self.portraitLeft:setFrames(Paths.getAtlas("pixel/senpaiPortrait", "assets/images/png/pixel/senpaiPortrait.xml"))
+    self.portraitLeft:setFrames(Paths.getAtlas("pixel/senpaiPortrait", "pixel/senpaiPortrait.xml"))
     self.portraitLeft:addByPrefix("enter", "Senpai Portrait Enter", 24, false)
     self.portraitLeft:setGraphicSize(math.floor(self.portraitLeft.width * PlayState.daPixelZoom * 0.9))
     self.portraitLeft:updateHitbox()
@@ -78,7 +78,7 @@ function DialogueBox:new(talkingRight, dialogueList)
     self:add(self.portraitLeft)
 
     self.portraitRight = Sprite(0, 40)
-    self.portraitRight:setFrames(Paths.getAtlas("pixel/bfPortrait", "assets/images/png/pixel/bfPortrait.xml"))
+    self.portraitRight:setFrames(Paths.getAtlas("pixel/bfPortrait", "pixel/bfPortrait.xml"))
     self.portraitRight:addByPrefix("enter", "Boyfriend portrait enter", 24, false)
     self.portraitRight:setGraphicSize(math.floor(self.portraitRight.width * PlayState.daPixelZoom * 0.9))
     self.portraitRight:updateHitbox()

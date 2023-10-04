@@ -91,7 +91,7 @@ function table.indexOf(t, object)
             return i
         end
     end
-    return nil
+    return -1
 end
 
 function table.reverse(t)
@@ -101,6 +101,10 @@ function table.reverse(t)
         reversedTable[itemCount + 1 - k] = v
     end
     return reversedTable
+end
+
+function table.contains(t, object)
+    return table.indexOf(t, object) > -1
 end
 
 -- Love functions

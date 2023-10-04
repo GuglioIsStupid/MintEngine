@@ -33,7 +33,7 @@ function Stage:create()
     fgTrees.antialiasing = false
 
     local bgTrees = Sprite(repositionShit - 380, -800)
-    bgTrees:setFrames(Paths.getAtlas("stages/school/weebTrees", "assets/images/png/stages/school/weebTrees.txt"))
+    bgTrees:setFrames(Paths.getAtlas("stages/school/weebTrees", "stages/school/weebTrees.txt"))
     bgTrees:addByIndices("treeLoop", "trees", {1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19}, 12)
     bgTrees:play("treeLoop")
     bgTrees.scrollFactor = {x = 0.85, y = 0.85}

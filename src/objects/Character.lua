@@ -71,56 +71,72 @@ function Character:new(x, y, character, isPlayer)
     self.animOffsets = {}
     self.curCharacter = character
     self.isPlayer = isPlayer
-    local library, rawJson = nil, nil
+    local rawJson = nil
     
-    local characterPath = character .. ".json"
+    if self.curCharacter == "_________" then-- replace with hard coded characters
 
-    if love.filesystem.getInfo("assets/characters/" .. characterPath) then
-        rawJson = json.decode(love.filesystem.read("assets/characters/" .. characterPath))
     else
-        rawJson = json.decode(love.filesystem.read("assets/characters/bf.json"))
-    end
+        local characterPath = character .. ".json"
 
-    self.imageFile = rawJson.image
-    self:setFrames(Paths.getAtlas(self.imageFile, "assets/images/png/" .. self.imageFile))
-    if json.scale ~= 1 then
-        self.jsonScale = rawJson.scale
-        self:setGraphicSize(math.floor(self.width * self.jsonScale))
-        self:updateHitbox()
-    end
-
-    self.x, self.y = self.x + rawJson.position[1], self.y + rawJson.position[2]
-    self.cameraPosition = {rawJson.camera_position[1], rawJson.camera_position[2]}
-    self.flipX = (rawJson.flip_x == true)
-
-    self.noAntialiasing = (rawJson.no_antialiasing == true)
-    self.antialiasing = not self.noAntialiasing
-
-    self.animationsArray = rawJson.animations
-
-    self.healthColorArray = rawJson.healthbar_colors
-    self.healthIcon = rawJson.healthicon
-
-    if self.animationsArray ~= nil and #self.animationsArray > 0 then
-        for i, anim in ipairs(self.animationsArray) do
-            local animAnim = anim.anim
-            local animName = anim.name
-            local animFps = anim.fps
-            local animLoop = anim.loop
-            local animIndices = anim.indices
-            if animIndices ~= nil and #animIndices > 0 then
-                self:addByIndices(animAnim, animName, animIndices, animFps, animLoop)
+        if MODS_ALLOWED then
+            local path = Paths.modFolders("characters/" .. characterPath)
+            if love.filesystem.getInfo(path) then
+                rawJson = json.decode(love.filesystem.read(path))
             else
-                self:addByPrefix(animAnim, animName, animFps, animLoop)
+                rawJson = json.decode(love.filesystem.read("assets/characters/" .. characterPath))
             end
-
-            if anim.offsets ~= nil and #anim.offsets > 1 then
-                self:addOffset(anim.anim, anim.offsets[1], anim.offsets[2])
+        else
+            if love.filesystem.getInfo("assets/characters/" .. characterPath) then
+                rawJson = json.decode(love.filesystem.read("assets/characters/" .. characterPath))
+            else
+                rawJson = json.decode(love.filesystem.read("assets/characters/bf.json"))
             end
         end
-    else
-        self:quickAnimAdd("idle", "BF idle dance")
+
+        self.imageFile = rawJson.image
+
+        self:setFrames(Paths.getAtlas(self.imageFile, self.imageFile))
+
+        if json.scale ~= 1 then
+            self.jsonScale = rawJson.scale
+            self:setGraphicSize(math.floor(self.width * self.jsonScale))
+            self:updateHitbox()
+        end
+
+        self.x, self.y = self.x + rawJson.position[1], self.y + rawJson.position[2]
+        self.cameraPosition = {rawJson.camera_position[1], rawJson.camera_position[2]}
+        self.flipX = (rawJson.flip_x == true)
+
+        self.noAntialiasing = (rawJson.no_antialiasing == true)
+        self.antialiasing = not self.noAntialiasing
+
+        self.animationsArray = rawJson.animations
+
+        self.healthColorArray = rawJson.healthbar_colors
+        self.healthIcon = rawJson.healthicon
+
+        if self.animationsArray ~= nil and #self.animationsArray > 0 then
+            for i, anim in ipairs(self.animationsArray) do
+                local animAnim = anim.anim
+                local animName = anim.name
+                local animFps = anim.fps
+                local animLoop = anim.loop
+                local animIndices = anim.indices
+                if animIndices ~= nil and #animIndices > 0 then
+                    self:addByIndices(animAnim, animName, animIndices, animFps, animLoop)
+                else
+                    self:addByPrefix(animAnim, animName, animFps, animLoop)
+                end
+
+                if anim.offsets ~= nil and #anim.offsets > 1 then
+                    self:addOffset(anim.anim, anim.offsets[1], anim.offsets[2])
+                end
+            end
+        else
+            self:quickAnimAdd("idle", "BF idle dance")
+        end
     end
+
 
     self.originalFlipX = self.flipX
 

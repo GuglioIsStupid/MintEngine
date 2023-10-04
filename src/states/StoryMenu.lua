@@ -98,10 +98,10 @@ end
 function StoryMenuState:enter()
     Paths.clearFullCache()
     self:resetValues()
-    Paths.preloadDirectoryImages("menu/menucharacters")
-    Paths.preloadDirectoryImages("menu/storymenu")
-    Paths.preloadDirectoryImages("menu/menubackgrounds")
-    Paths.preloadDirectoryImages("menu/menudifficulties")
+    Paths.preloadDirectoryImages("menucharacters")
+    Paths.preloadDirectoryImages("storymenu")
+    Paths.preloadDirectoryImages("menubackgrounds")
+    Paths.preloadDirectoryImages("menudifficulties")
 
     if not TitleState.music:isPlaying() then
         TitleState.music:play()
@@ -122,7 +122,7 @@ function StoryMenuState:enter()
     self.txtWeekTitle.alignment = "left"
     self.txtWeekTitle.alpha = 0.7
 
-    local ui_tex = Paths.getAtlas("menu/campaign_menu_UI_assets", "assets/images/png/menu/campaign_menu_UI_assets.xml")
+    local ui_tex = Paths.getAtlas("menu/campaign_menu_UI_assets", "menu/campaign_menu_UI_assets.xml")
     local bgYellow = Sprite(0, 56)
     bgYellow:makeGraphic(push:getWidth(), 386, 0xFFF9CF51)
     self.bgSprite = Sprite(0, 56)
@@ -143,9 +143,16 @@ function StoryMenuState:enter()
         local weekFile = WeekData.weeksLoaded[WeekData.weeksList[i]]
         local isLocked = self:weekIsLocked(WeekData.weeksList[i])
 
-        if not isLocked or not weekFile.hiddenUntilUnlocked then
+        if not isLocked and not weekFile.hiddenUntilUnlocked and not weekFile.hideStoryMode then
+            local weekfile
+            if WeekData.weeksList[i]:endsWith(".") then 
+                weekfile = WeekData.weeksList[i]:sub(1, -2)
+            else
+                weekfile = WeekData.weeksList[i]
+            end
+            WeekData:setDirectoryFromWeek(weekFile)
             table.insert(self.loadedWeeks, weekFile)
-            local weekThing = MenuItem(0, self.bgSprite.y + 396, WeekData.weeksList[i])
+            local weekThing = MenuItem(0, self.bgSprite.y + 396, weekfile)
             weekThing.y = weekThing.y + ((weekThing.height + 20) * num)
             weekThing.targetY = num
             self.grpWeekText:add(weekThing)
@@ -162,6 +169,7 @@ function StoryMenuState:enter()
             num = num + 1
         end
     end
+    WeekData:setDirectoryFromWeek(self.loadedWeeks[1])
 
     local charArray = self.loadedWeeks[1].weekCharacters
     for char = 1, 3 do
@@ -233,6 +241,7 @@ function StoryMenuState:changeWeek(change)
     end
 
     local leWeek = self.loadedWeeks[self.curWeek]
+    WeekData:setDirectoryFromWeek(leWeek)
     
     local leName = leWeek.storyName
 
@@ -254,7 +263,7 @@ function StoryMenuState:changeWeek(change)
     if not assetName or #assetName < 1 then
         self.bgSprite.visible = false
     else
-        self.bgSprite:load("menu/menubackgrounds/menu_" .. assetName)
+        self.bgSprite:load("menubackgrounds/menu_" .. assetName)
     end
     PlayState.storyWeek = self.curWeek
 
@@ -272,6 +281,7 @@ function StoryMenuState:changeWeek(change)
         self.curDifficulty = newPos
     end
     self:updateText()
+    self:changeDifficulty()
 end
 
 function StoryMenuState:selectWeek()
@@ -341,12 +351,13 @@ function StoryMenuState:changeDifficulty(change)
         self.curDifficulty = #Difficulty.list
     end
 
+    WeekData:setDirectoryFromWeek(self.loadedWeeks[self.curWeek])
 
     local diff = Difficulty:getString(self.curDifficulty)
-    local newImage = Paths.image("menu/menudifficulties/" .. Paths.formatToSongPath(diff))
+    local newImage = Paths.image("menudifficulties/" .. Paths.formatToSongPath(diff))
 
     if self.sprDifficulty.graphic ~= newImage then
-        self.sprDifficulty:load("menu/menudifficulties/" .. Paths.formatToSongPath(diff))
+        self.sprDifficulty:load("menudifficulties/" .. Paths.formatToSongPath(diff))
         self.sprDifficulty.x = self.leftArrow.x + 60
         self.sprDifficulty.x = self.sprDifficulty.x + (308 - self.sprDifficulty.width) / 3
         self.sprDifficulty.alpha = 0
@@ -426,7 +437,17 @@ end
 function StoryMenuState:updateText()
     local weekArray = self.loadedWeeks[self.curWeek].weekCharacters
     for i = 1, #weekArray do
-        self.grpWeekCharacters.members[i]:changeCharacter(weekArray[i])
+        TryExcept( -- bleh hack
+            function()
+                self.grpWeekCharacters.members[i].visible = true
+                self.grpWeekCharacters.members[i]:changeCharacter(weekArray[i])
+            end,
+            function(err)
+                if self.grpWeekCharacters.members[i] then
+                    self.grpWeekCharacters.members[i].visible = false
+                end
+            end
+        )
     end
 
     local leWeek = self.loadedWeeks[self.curWeek]

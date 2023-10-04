@@ -101,6 +101,8 @@ function FreeplayState:enter()
             table.insert(leChars, leWeek.songs[j][2])
         end
 
+        WeekData:setDirectoryFromWeek(leWeek)
+
         for _, song in ipairs(leWeek.songs) do
             local colors = song[3]
             if not colors or #colors < 3 then
@@ -109,6 +111,7 @@ function FreeplayState:enter()
             self:addSong(song[1], i, song[2], colors)
         end
     end
+    Mods:loadTopMod()
 
     self.bg = Sprite()
     self.bg:load("menu/menuDesat")
@@ -127,6 +130,7 @@ function FreeplayState:enter()
         songText.scaleX = math.min(1, 980 / songText.width)
         songText:snapToPosition()
 
+        Mods.currentModDirectory = self.songs[i].folder
         local icon = HealthIcon(self.songs[i].songCharacter)
         icon.sprTracker = songText
 
@@ -139,6 +143,7 @@ function FreeplayState:enter()
         self:add(icon)
         self.grpSongs:add(songText)
     end
+    WeekData:setDirectoryFromWeek()
     
     self.scoreText = Text(push:getWidth()*0.7, 5, 0, "", Paths.font("assets/fonts/vcr.ttf", 32))
     self.scoreText.borderSize = 0
@@ -263,7 +268,7 @@ function FreeplayState:update(dt)
             Timer.cancel(self.colorTween)
         end
         Sound.play(Paths.sound("assets/sounds/cancelMenu.ogg"))
-        MusicBeatState:fadeOut(0.4, function() GameState.switch(MainMenuState) end)
+        MusicBeatState:fadeOut(0.4, function() Gamestate.switch(MainMenuState) end)
     end
 
     if input:pressed("accept") then
@@ -306,8 +311,8 @@ function FreeplayState:changeDiff(change)
     self.curDifficulty = self.curDifficulty + change
     
     if self.curDifficulty < 1 then
-        self.curDifficulty = #Difficulty.defaultList
-    elseif self.curDifficulty > #Difficulty.defaultList then
+        self.curDifficulty = #Difficulty.list
+    elseif self.curDifficulty > #Difficulty.list then
         self.curDifficulty = 1
     end
 
@@ -361,19 +366,26 @@ function FreeplayState:changeSelection(change, playSound)
         end
     end
 
+    Mods.currentModDirectory = self.songs[self.curSelected].folder
+
     PlayState.storyWeek = self.songs[self.curSelected].week
     Difficulty:loadFromWeek()
 
-    local saveDiff = table.indexOf(Difficulty.list, self.lastDifficultyName)
-    --[[ if savedDiff and not self.lastList[savedDiff] and Difficulty.list[savedDiff] then
-        self.curDifficulty = math.round(math.max(0, table.indexOf(Difficulty.defaultList, self.lastDifficultyName)))
-    elseif (self.lastDiff or 1) > -1 then
-        self.curDifficulty = self.lastDiff or 1
-    elseif Difficulty.list[Difficulty:getDefault()] then
-        self.curDifficulty = math.round(math.max(0, table.indexOf(Difficulty.defaultList, Difficulty:getDefault())))
+    local savedDiff = self.songs[self.curSelected].lastDifficulty
+    local lastDiff = table.indexOf(lastList, self.lastDifficultyName)
+    if savedDiff ~= nil and not table.contains(lastList, savedDiff) and table.contains(Difficulty.list, savedDiff) then
+        self.curDifficulty = math.round(math.max(1, table.indexOf(Difficulty.list, savedDiff)))
+    elseif lastDiff > -1 then
+        self.curDifficulty = lastDiff
+    elseif table.contains(Difficulty.list, Difficulty:getDefault()) then
+        self.curDifficulty = math.round(math.max(1, table.indexOf(Difficulty.defaultList, Difficulty:getDefault())))
     else
         self.curDifficulty = 1
-    end ]]
+    end
+
+    if self.curDifficulty > #Difficulty.list then
+        self.curDifficulty = 1
+    end
 
     self:changeDiff()
     self:_updateSongLastDifficulty()

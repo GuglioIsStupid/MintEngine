@@ -100,7 +100,7 @@ function Note:new(strumTime, noteData, prevNote, sustainNote, inEditor, createdF
 
     if noteData > -1 then
         if not PlayState.isPixelStage then
-            self:setFrames(Paths.getAtlas(PlayState.noteSkin or Note.defaultNoteSkin, "assets/images/png/" .. (PlayState.noteSkin or Note.defaultNoteSkin) .. ".xml"))
+            self:setFrames(Paths.getAtlas(PlayState.noteSkin or Note.defaultNoteSkin, (PlayState.noteSkin or Note.defaultNoteSkin) .. ".xml"))
             self.x = self.x + Note.swagWidth * noteData
             if not self.isSustainNote and noteData < #Note.colArray then
                 local animToPlay = ""

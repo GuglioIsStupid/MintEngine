@@ -12,7 +12,7 @@ function TankmenBG:new(x, y, facingRight)
     self.goingRight = facingRight
     self.super.new(self, x, y)
 
-    self:setFrames(Paths.getAtlas("stages/tank/tankmanKilled1", "assets/images/png/stages/tank/tankmanKilled1.xml"))
+    self:setFrames(Paths.getAtlas("stages/tank/tankmanKilled1", "stages/tank/tankmanKilled1.xml"))
     self:addByPrefix("run", "tankman running", 24, false)
     self:addByPrefix("shot", "John Shot " .. love.math.random(1, 2), 24, false) -- rip John
     self:play("run")

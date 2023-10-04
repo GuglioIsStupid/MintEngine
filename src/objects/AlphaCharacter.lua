@@ -56,7 +56,7 @@ AlphaCharacter.allLetters = {
 
 function AlphaCharacter:new(x, y)
     self.super.new(self, x, y)
-    self:setFrames(Paths.getAtlas("alphabet", "assets/images/png/alphabet"))
+    self:setFrames(Paths.getAtlas("alphabet", "alphabet"))
 end
 
 function AlphaCharacter:setupAlphaCharacter(x, y, character, bold)

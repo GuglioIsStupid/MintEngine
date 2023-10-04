@@ -13,6 +13,7 @@ function SongMetaData:new(song, week, songCharacter, color)
     self.songCharacter = songCharacter
     self.color = color
     self.lastDifficulty = Difficulty.Easy
+    self.folder = Mods.currentModDirectory
     if not self.folder then self.folder = "" end
 end
 

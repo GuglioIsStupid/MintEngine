@@ -46,16 +46,27 @@ function MenuCharacter:changeCharacter(character)
         local characterPath = "assets/menucharacters/" .. character .. ".json"
         local rawJson = nil
 
-        if love.filesystem.getInfo(characterPath) then
-            rawJson = love.filesystem.read(characterPath)
+        if MODS_ALLOWED then
+            local path = Paths.modFolders("images/menucharacters/" .. character .. ".json")
+            if love.filesystem.getInfo(path) then
+                rawJson = love.filesystem.read(path)
+            elseif love.filesystem.getInfo(characterPath) then
+                rawJson = love.filesystem.read(characterPath)
+            else
+                rawJson = love.filesystem.read("assets/menucharacters/" .. self.DEFAULT_CHARACTER .. ".json")
+            end
         else
-            rawJson = love.filesystem.read("assets/menucharacters/" .. self.DEFAULT_CHARACTER .. ".json")
+            if love.filesystem.getInfo(characterPath) then
+                rawJson = love.filesystem.read(characterPath)
+            else
+                rawJson = love.filesystem.read("assets/menucharacters/" .. self.DEFAULT_CHARACTER .. ".json")
+            end
         end
 
         local charFile = json.decode(rawJson)
         self.frames = {}
         self.animations = {}
-        self:setFrames(Paths.getAtlas("menu/menucharacters/" .. charFile.image, "assets/images/png/menu/menucharacters/" .. charFile.image .. ".xml"))
+        self:setFrames(Paths.getAtlas("menucharacters/" .. charFile.image, "menucharacters/" .. charFile.image .. ".xml"))
         self:addByPrefix("idle", charFile.idle_anim, 24)
 
         local confirmAnim = charFile.confirm_anim

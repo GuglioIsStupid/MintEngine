@@ -792,7 +792,6 @@ function PlayState:update(dt)
                         note.visible = false
     
                         self.sustainNotes:remove(note)
-                        print(#self.sustainNotes.members)
                     end
                 end
             end
@@ -1250,8 +1249,10 @@ function PlayState:generateSong(dataPath)
 
     self.curSong = songData.song
 
-    self.vocals = songData.needsVoices and love.audio.newSource("assets/songs/" .. dataPath .. "/" .. "Voices.ogg", "stream") or nil
-    self.inst = love.audio.newSource("assets/songs/" .. dataPath .. "/" .. "Inst.ogg", "stream")
+    --self.vocals = songData.needsVoices and love.audio.newSource("assets/songs/" .. dataPath .. "/" .. "Voices.ogg", "stream") or nil
+    self.vocals = songData.needsVoices and love.audio.newSource(Paths.voices(dataPath), "stream") or nil
+    --self.inst = love.audio.newSource("assets/songs/" .. dataPath .. "/" .. "Inst.ogg", "stream")
+    self.inst = love.audio.newSource(Paths.inst(dataPath), "stream")
 
     notes = Group()
     self:add(notes)

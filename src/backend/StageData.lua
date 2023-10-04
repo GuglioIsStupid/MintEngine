@@ -82,10 +82,21 @@ end
 function StageData:getStageFile(stage)
     local rawJson = nil
     local path = "assets/stages/" .. stage .. ".json"
-    if love.filesystem.getInfo(path) then
-        rawJson = json.decode(love.filesystem.read(path))
+    if MODS_ALLOWED then
+        local modPath = Paths.modFolders("stages/" .. stage .. ".json")
+        if love.filesystem.getInfo(modPath) then
+            rawJson = json.decode(love.filesystem.read(modPath))
+        elseif love.filesystem.getInfo(path) then
+            rawJson = json.decode(love.filesystem.read(path))
+        else
+            return nil
+        end
     else
-        return nil
+        if love.filesystem.getInfo(path) then
+            rawJson = json.decode(love.filesystem.read(path))
+        else
+            return nil
+        end
     end
     return rawJson
 end

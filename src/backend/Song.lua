@@ -65,6 +65,13 @@ function Song:loadFromJson(jsonInput, folder)
     local formattedSong = Paths.formatToSongPath(jsonInput)
     local folder = Paths.formatToSongPath(folder)
 
+    if MODS_ALLOWED then
+        local moddyFile = Paths.modsJson(folder .. "/" .. formattedSong)
+        if love.filesystem.getInfo(moddyFile) then
+            rawJson = love.filesystem.read(moddyFile)
+        end
+    end
+
     if not rawJson then
         TryExcept(
             function()
