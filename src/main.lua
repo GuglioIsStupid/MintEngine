@@ -116,6 +116,11 @@ function love.load()
     Gamestate.switch(TitleState)
 
     firstStartup = false
+
+    -- create mods folder if it doesn't exist
+    if not love.filesystem.getInfo("mods") then
+        love.filesystem.createDirectory("mods")
+    end
 end
 
 function love.update(dt)

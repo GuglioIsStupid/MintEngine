@@ -220,8 +220,6 @@ function CreditsState:changeSelection(change, onOpen)
     end
     self.curSelected = not onOpen and self.curSelected or 1
 
-    print(self.curSelected, #self.creditsStuff)
-
     local newColor = hexToColor(self.creditsStuff[self.curSelected][5] or 0xFFFFFF)
     if newColor ~= self.intendedColor then
         if self.colorTween then
