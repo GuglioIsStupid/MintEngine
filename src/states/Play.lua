@@ -34,6 +34,7 @@ PlayState.GF_X = 400
 PlayState.GF_Y = 130
 
 PlayState.songSpeed = 1
+PlayState.oSongSpeed = 1 
 PlayState.songSpeedTween = nil -- Timer.tween
 PlayState.songSpeedType = "multiplicative"
 PlayState.noteKillOffset = 350
@@ -166,6 +167,7 @@ function PlayState:resetValues()
     self.variables = {}
 
     self.songSpeed = 1
+    self.oSongSpeed = 1
     self.songSpeedTween = nil -- Timer.tween
     self.songSpeedType = "multiplicative"
     self.noteKillOffset = 350
@@ -709,6 +711,13 @@ function PlayState:sectionHit()
 end
 
 function PlayState:update(dt)
+    if self.generatedMusic then
+        local ratio = self.songSpeed / self.oSongSpeed
+        for i, note in ipairs(self.sustainNotes.members) do
+            note:resizeByRatio(ratio)
+        end
+        self.oSongSpeed = self.songSpeed
+    end
     self:callOnLuas("onUpdate", {dt})
     if self.health <= 0 then
         self.health = 0
@@ -966,6 +975,19 @@ function PlayState:triggerEvent(eventName, value1, value2, strumTime)
         if char then
             char:playAnim(value1, true)
             char.specialAnim = true
+        end
+    elseif eventName == "Change Scroll Speed" then
+        if self.songSpeedType ~= "constant" then
+            f1 = f1 or 1
+            f2 = f2 or 0
+
+            newValue = self.SONG.speed * f1
+            if f2 <= 0 then
+                self.songSpeed = 0
+            else
+                if self.songSpeedTween then Timer.cancel(self.songSpeedTween) end
+                self.songSpeedTween = Timer.tween(f2, self, {songSpeed = newValue}, "linear")
+            end
         end
     elseif eventName == "Set Property" then
         TryExcept(

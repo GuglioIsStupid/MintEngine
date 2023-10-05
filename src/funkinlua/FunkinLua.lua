@@ -325,7 +325,7 @@ function FunkinLua:new(scriptName)
             local y = y or 0
             LuaUtils.resetSpriteTag(tag)
             local leSprite = ModchartSprite(x, y)
-            if image and #image > 0 then
+            if image and #image > 0 and image ~= "empty" then
                 leSprite:load(Paths.image(image))
             end
             PlayState.modchartSprites[tag] = leSprite
@@ -540,6 +540,18 @@ function FunkinLua:new(scriptName)
         "doTweenAlpha",
         function(tag, vars, value, duration, ease)
             self:oldTweenFunction(tag, vars, {alpha = value}, duration, ease, "doTweenAlpha")
+        end
+    )
+    self:set(
+        "setObjectCamera",
+        function(obj, camera)
+            local spr = PlayState:getLuaObject(obj, false)
+            if spr then
+                if camera == "hud" then
+                    spr.camera = PlayState.camHUD
+                end
+                return
+            end
         end
     )
     self:set(
