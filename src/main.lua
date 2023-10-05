@@ -73,6 +73,7 @@ function love.load()
     HealthIcon = require "objects.HealthIcon"
     Trail = require "modules.flixel.Trail"
     Point = require "modules.flixel.math.Point"
+    Button = require "modules.flixel.ui.FlxButton"
 
     -- FunkinLua
     ModchartSprite = require "FunkinLua.ModchartSprite"
@@ -139,6 +140,10 @@ end
 
 function love.resize(w, h)
     push.resize(w, h)
+end
+
+function love.mousepressed(x, y, button)
+    Gamestate.mousepressed(x, y, button)
 end
 
 function love.draw()

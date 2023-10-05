@@ -33,6 +33,8 @@ function TitleState:enter()
 
     --TestSpr = AtlasSprite()
     --TestSpr:construct("stages/tank/cutscenes/stressPico")
+
+    self.buttonTest = Button(20, 20, "BALLS", nil)
 end
 
 function TitleState:update(dt)
@@ -41,6 +43,7 @@ function TitleState:update(dt)
     self.logo:update(dt)
     self.gfTitle:update(dt)
     self.enterText:update(dt)
+    self.buttonTest:update(dt)
 
     if input:pressed("accept") then
         self.enterText:play("flash")
@@ -77,6 +80,7 @@ function TitleState:draw()
     self.gfTitle:draw()
     self.logo:draw()
     self.enterText:draw()
+    self.buttonTest:draw()
 end
 
 function TitleState:leave()

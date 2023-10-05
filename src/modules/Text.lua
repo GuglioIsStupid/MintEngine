@@ -41,6 +41,7 @@ function Text:new(x, y, limit, text, font)
     self.scale = {x=1,y=1}
     self.angle = 0
     self.camera = nil
+    self.drawFrame = false
 
     if not self.font then
         self.font = love.graphics.newFont(12)
@@ -85,6 +86,10 @@ function Text:draw()
             love.graphics.setFont(self.font)
             love.graphics.setColor(self.borderColor[1], self.borderColor[2], self.borderColor[3], self.alpha)
             self.width, self.height = self.font:getWidth(self.text), self.font:getHeight(self.text)
+            
+            if self.drawFrame then
+                love.graphics.rectangle("line", self.x, self.y, self.width, self.height)
+            end
 
             love.graphics.push()
             love.graphics.translate(-(self.font:getWidth(self.text) * (self.scale.x - 1)), -(self.font:getHeight(self.text) * (self.scale.y - 1)))

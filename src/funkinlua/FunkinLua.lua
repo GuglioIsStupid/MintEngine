@@ -328,6 +328,7 @@ function FunkinLua:new(scriptName)
             if image and #image > 0 and image ~= "empty" then
                 leSprite:load(Paths.image(image))
             end
+            leSprite.camera = PlayState.camGame
             PlayState.modchartSprites[tag] = leSprite
             leSprite.active = true
         end
@@ -379,7 +380,6 @@ function FunkinLua:new(scriptName)
         function(tag, front)
             if PlayState.modchartSprites[tag] then
                 local shit = PlayState.modchartSprites[tag]
-                shit.camera = PlayState.camGame
                 if front then
                     LuaUtils.getTargetInstance():add(shit)
                 else
@@ -543,18 +543,6 @@ function FunkinLua:new(scriptName)
         end
     )
     self:set(
-        "setObjectCamera",
-        function(obj, camera)
-            local spr = PlayState:getLuaObject(obj, false)
-            if spr then
-                if camera == "hud" then
-                    spr.camera = PlayState.camHUD
-                end
-                return
-            end
-        end
-    )
-    self:set(
         "doTweenColor",
         function(tag, vars, targetColor, duration, ease)
             local penisExam = LuaUtils:tweenPrepare(tag, vars) -- the ACTUAL name for it... what the fuck??
@@ -568,6 +556,24 @@ function FunkinLua:new(scriptName)
                         PlayState:callOnLuas("onTweenCompleted", {tag, vars})
                     end
                 )
+            end
+        end
+    )
+    self:set(
+        "doTweenY",
+        function(tag, vars, value, duration, ease)
+            self:oldTweenFunction(tag, vars, {y = value}, duration, ease, "doTweenY")
+        end
+    )
+    self:set(
+        "setObjectCamera",
+        function(obj, camera)
+            local spr = PlayState:getLuaObject(obj, false)
+            if spr then
+                if camera == "hud" then
+                    spr.camera = PlayState.camHUD
+                end
+                return
             end
         end
     )
