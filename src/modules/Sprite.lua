@@ -377,6 +377,69 @@ function Sprite:screenCenter(axis)
     return self
 end
 
+-- https://github.com/VanillaEngineDevs/Vanilla-Engine/blob/main/src/love/modules/xml/Sprite.lua#L399
+function Sprite:gridOverlay(cellWidth, cellHeight, width, height, alternate, color1, color2)
+    local width = width or push:getWidth()
+    local height = height or push:getHeight()
+    local cellWidth = cellWidth or 32
+    local cellHeight = cellHeight or 32
+    local alternate = (alternate == nil) and true or alternate
+    local color1 = color1 or "FBFBFB"
+    local color2 = color2 or "E6E6E6"
+
+    if width < cellWidth or height < cellHeight then return end
+
+    self.graphic = self:createGrid(cellWidth, cellHeight, width, height, alternate, color1, color2)
+    self.width, self.height = width, height
+end
+
+function Sprite:createGrid(cellWidth, cellHeight, width, height, alternate, color1, color2)
+    local rowColor = color1
+    local lastColor = color1
+    local grid = love.graphics.newCanvas(width, height)
+    self.rects = {
+        -- stored as {x,y,w,h,color}
+    }
+
+    local y = 0
+    while y <= height do
+        if y > 0 and lastColor == rowColor and alternate then
+            lastColor = lastColor == color1 and color2 or color1
+        elseif y > 0 and lastColor ~= rowColor and not alternate then
+            lastColor = lastColor == color2 and color1 or color2
+        end
+
+        local x = 0
+        while x <= width do
+            if x == 0 then
+                rowColor = lastColor
+            end
+
+            table.insert(self.rects, {x=x, y=y, w=cellWidth, h=cellHeight, color=lastColor})
+
+            if lastColor == color1 then
+                lastColor = color2
+            else
+                lastColor = color1
+            end
+
+            x = x + cellWidth
+        end
+
+        y = y + cellHeight
+    end
+
+    grid:renderTo(function()
+        for i, rect in ipairs(self.rects) do
+            love.graphics.setColor(hexToColor(rect.color))
+            love.graphics.rectangle("fill", rect.x, rect.y, rect.w, rect.h)
+            love.graphics.setColor(1, 1, 1, 1)
+        end
+    end)
+
+    return grid
+end
+
 function Sprite:kill()
     self.alive = false
     self.exists = false

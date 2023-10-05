@@ -26,7 +26,7 @@ function Text:new(x, y, limit, text, font)
     local text = text or " "
     self.alignment = "center"
     self.borderColor = hexToColor(0x000000)
-    self.font = font
+    self.font = font or love.graphics.getFont()
     self.text = text
     self.fullText = text -- for dialogue
     self.color = hexToColor(0xFFFFFFFF)

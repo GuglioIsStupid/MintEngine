@@ -1,5 +1,6 @@
 local mouseTimer, maxMouseTimer = 0, 1 -- time before mouse is hidden
 local lastMouseX, lastMouseY = 0, 0
+local pc = {"Windows", "Linux", "OS X"}
 function love.load()
     require "config"
     -- Libraries
@@ -76,6 +77,7 @@ function love.load()
     Trail = require "modules.flixel.Trail"
     Point = require "modules.flixel.math.Point"
     Button = require "modules.flixel.ui.FlxButton"
+    UITabMenu = require "modules.flixel.ui.FlxUITabMenu"
 
     -- FunkinLua
     ModchartSprite = require "FunkinLua.ModchartSprite"
@@ -123,6 +125,10 @@ function love.load()
     FreeplayState = require "states.Freeplay"
     CreditsState = require "states.Credits"
 
+    Editors = {
+        ChartingState = require "states.editors.ChartingState",
+    }
+
     Gamestate.switch(TitleState)
 
     firstStartup = false
@@ -132,7 +138,6 @@ function love.load()
         love.filesystem.createDirectory("mods")
     end
 
-    local pc = {"Windows", "Linux", "OS X"}
     if table.contains(pc, love.system.getOS()) then
         love.mouse.setCursor(love.mouse.newCursor("assets/images/png/flixel/ui/cursor.png"))
     end
@@ -161,8 +166,11 @@ function love.resize(w, h)
     push.resize(w, h)
 end
 
-function love.mousepressed(x, y, button)
-    Gamestate.mousepressed(x, y, button)
+
+function love.keypressed(key, scancode, isrepeat)
+    if key == "7" then
+        Gamestate.switch(Editors.ChartingState)
+    end
 end
 
 function love.draw()

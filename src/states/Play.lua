@@ -1784,8 +1784,8 @@ function PlayState:goodNoteHit(note)
             self:strumPlayAnim(false, math.floor(math.abs(note.noteData+1)), Conductor.stepCrochet * 1.25 / 1000 / self.playbackRate)
         end 
         
-        if self.voices then
-            self.voices:setVolume(1)
+        if self.vocals then
+            self.vocals:setVolume(1)
         end
 
         local isSus = note.isSustainNote

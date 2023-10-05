@@ -2,6 +2,8 @@ local TitleState = MusicBeatState:extend()
 TitleState.music = nil
 TitleState.music = love.audio.newSource("assets/music/freakyMenu.ogg", "stream")
 TitleState.music:setLooping(true)
+TitleState.closedState = false
+TitleState.sickBeats = 0
     
 function TitleState:enter()
     Mods:loadTopMod()
@@ -33,8 +35,6 @@ function TitleState:enter()
 
     --TestSpr = AtlasSprite()
     --TestSpr:construct("stages/tank/cutscenes/stressPico")
-
-    self.buttonTest = Button(20, 20, "BALLS", nil)
 end
 
 function TitleState:update(dt)
@@ -43,7 +43,6 @@ function TitleState:update(dt)
     self.logo:update(dt)
     self.gfTitle:update(dt)
     self.enterText:update(dt)
-    self.buttonTest:update(dt)
 
     if input:pressed("accept") then
         self.enterText:play("flash")
@@ -74,13 +73,20 @@ function TitleState:beatHit()
     if self.logo then
         self.logo:play("bump")
     end
+
+    if not self.closedState then
+        self.sickBeats = self.sickBeats + 1
+
+        if self.sickBeats == 2 then
+            --self:createCoolText({""})
+        end
+    end
 end
 
 function TitleState:draw()
     self.gfTitle:draw()
     self.logo:draw()
     self.enterText:draw()
-    self.buttonTest:draw()
 end
 
 function TitleState:leave()
