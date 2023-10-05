@@ -1,3 +1,5 @@
+local mouseTimer, maxMouseTimer = 0, 1 -- time before mouse is hidden
+local lastMouseX, lastMouseY = 0, 0
 function love.load()
     require "config"
     -- Libraries
@@ -129,13 +131,30 @@ function love.load()
     if not love.filesystem.getInfo("mods") then
         love.filesystem.createDirectory("mods")
     end
+
+    local pc = {"Windows", "Linux", "OS X"}
+    if table.contains(pc, love.system.getOS()) then
+        love.mouse.setCursor(love.mouse.newCursor("assets/images/png/flixel/ui/cursor.png"))
+    end
 end
 
 function love.update(dt)
+    local newMouseX, newMouseY = love.mouse.getPosition()
+    if newMouseX ~= lastMouseX or newMouseY ~= lastMouseY then
+        mouseTimer = 0
+        love.mouse.setVisible(true)
+    else
+        mouseTimer = mouseTimer + dt
+        if mouseTimer >= maxMouseTimer then
+            love.mouse.setVisible(false)
+        end
+    end
     Gamestate.update(dt)
     Flicker:update(dt)
     Timer.update(dt)
     input:update()
+
+    lastMouseX, lastMouseY = love.mouse.getPosition()
 end
 
 function love.resize(w, h)
