@@ -4,37 +4,6 @@ local pc = {"Windows", "Linux", "OS X"}
 function love.load()
     require "config"
     -- Libraries
-
-    local note_left, note_right, note_up, note_down, accept, back
-    if love.system.getOS() == "NX" then
-        note_left = {"key:left", "key:a", "axis:leftx-", "button:dpleft",  "axis:triggerleft+", "button:y", "axis:rightx-"}
-        note_right = {"key:right", "key:d", "axis:leftx+", "button:dpright", "button:a", "axis:triggerright+", "axis:rightx+"}
-        note_up = {"key:up", "key:w", "axis:lefty-", "button:dpup", "button:rightshoulder", "button:x", "axis:righty-"}
-        note_down = {"key:down", "key:s", "axis:lefty+", "button:dpdown", "button:leftshoulder", "button:b", "axis:righty+"}
-    else
-        -- same thing, but y/x, a/b are swapped
-        note_left = {"key:left", "key:a", "axis:leftx-", "button:dpleft",  "axis:triggerleft+", "button:x", "axis:rightx-"}
-        note_right = {"key:right", "key:d", "axis:leftx+", "button:dpright", "button:b", "axis:triggerright+", "axis:rightx+"}
-        note_up = {"key:up", "key:w", "axis:lefty-", "button:dpup", "button:rightshoulder", "button:y", "axis:righty-"}
-        note_down = {"key:down", "key:s", "axis:lefty+", "button:dpdown", "button:leftshoulder", "button:a", "axis:righty+"}
-    end
-    input = (require "libs.baton").new {
-        controls = {
-            note_left = note_left,
-            note_right = note_right,
-            note_up = note_up,
-            note_down = note_down,
-
-            accept = {"key:return", "button:a"},
-            back = {"key:escape", "button:b"},
-
-            ui_down = {"key:down", "button:dpdown", "axis:lefty+"},
-            ui_up = {"key:up", "button:dpup", "axis:lefty-"},
-            ui_left = {"key:left", "button:dpleft", "axis:leftx-"},
-            ui_right = {"key:right", "button:dpright", "axis:leftx+"},
-        },
-        joystick = love.joystick.getJoysticks()[1],
-    }
     push = require "libs.push"
     Gamestate = require "libs.gamestate"
     json = require "libs.json"
@@ -42,8 +11,13 @@ function love.load()
     Object = require "libs.classic"
     Timer = require "libs.timer"
 
-    ClientPrefs = require "backend.ClientPrefs".ClientPrefs
-    SaveVariables = require "backend.ClientPrefs".SaveVariables
+    ClientPrefs = require "backend.ClientPrefs"
+    input = (require "libs.baton").new({
+        controls = ClientPrefs.data.controls,
+        joystick = love.joystick.getJoysticks()[1],
+    })
+    ClientPrefs:loadPrefs()
+    
     -- locales -- todo. add more languages & switch specifics
     --[[ local cur_locale = SaveVariables.locale
     if love.system.getOS() == "NX" then
