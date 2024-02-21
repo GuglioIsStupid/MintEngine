@@ -16,6 +16,8 @@ function StrumNote:new(x, y, leData, player)
 
     self.skin = PlayState.currentNoteSkin or Note.defaultNoteSkin
 
+    self.downScroll = ClientPrefs.data.downScroll
+
     if PlayState.isPixelStage then
         local graphic = Paths.image("pixel/pixelUI/NOTE_assets")
         self:load(graphic, true, graphic:getWidth() / 4, graphic:getHeight() / 5) -- 4 rows, 5 columns

@@ -586,12 +586,6 @@ function PlayState:moveCameraSection(sec)
     local isDad = not self.SONG.notes[sec].mustHitSection
 
     if self.gf and self.SONG.notes[sec].gfSection or (isDad and self.dad.curCharacter:startsWith("gf")) then
-        --[[ self.camTwn = Timer.tween(self.cameraSpeed, self.camFollow, 
-            {
-                x = self.gf:getMidpoint().x + self.gf.cameraPosition[1] + self.girlfriendCameraOffset[1], 
-                y = self.gf:getMidpoint().y + self.gf.cameraPosition[2] + self.girlfriendCameraOffset[2] - 50
-            }, "out-quad"
-        ) ]]
         self.camFollow.x = self.gf:getMidpoint().x + self.gf.cameraPosition[1] + self.girlfriendCameraOffset[1]
         self.camFollow.y = self.gf:getMidpoint().y + self.gf.cameraPosition[2] + self.girlfriendCameraOffset[2] - 50
         self:tweenCamIn()
@@ -1446,7 +1440,10 @@ function PlayState:generateSong(dataPath)
                             oldNote:updateHitbox()
                         end
 
-                        -- downscroll correctionoffset = 0
+                        -- downScroll correctionoffset = 0
+                        if ClientPrefs.data.downScroll then
+                            sustainNote.correctionOffset = 0
+                        end
                     elseif oldNote.isSustainNote then
                         oldNote:updateHitbox()
                     end
@@ -1666,8 +1663,8 @@ function PlayState:StartAndEnd()
 end
 
 function PlayState:generateStaticArrows(player)
-    local strumLineX = self.STRUM_X
-    strumLineY = 50
+    local strumLineX = self.STRUM_X + (self.isPixelStage and 30 or 0)
+    strumLineY = not ClientPrefs.data.downScroll and 35 or 550
 
     for i = 1, 4 do
         local targetAlpha = 1
@@ -1676,7 +1673,7 @@ function PlayState:generateStaticArrows(player)
         end
 
         local babyArrow = StrumNote(strumLineX, strumLineY, i-1, player)
-        babyArrow.downscroll = false
+        babyArrow.downScroll = ClientPrefs.data.downScroll
         babyArrow.camera = self.camHUD
 
         if player == 1 then

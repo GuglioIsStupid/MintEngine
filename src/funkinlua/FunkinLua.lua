@@ -117,7 +117,7 @@ function FunkinLua:new(scriptName)
     self:set('dadName', PlayState.SONG.player2);
     self:set('gfName', PlayState.SONG.gfVersion);
 
-    --[[ self:set('downscroll', ClientPrefs.data.downScroll);
+    --[[ self:set('downScroll', ClientPrefs.data.downScroll);
     self:set('middlescroll', ClientPrefs.data.middleScroll);
     self:set('framerate', ClientPrefs.data.framerate);
     self:set('ghostTapping', ClientPrefs.data.ghostTapping);

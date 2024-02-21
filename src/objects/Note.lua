@@ -79,6 +79,7 @@ end
 
 function Note:new(strumTime, noteData, prevNote, sustainNote, inEditor, createdFrom)
     self.super.new(self)
+    self.downScroll = ClientPrefs.data.downScroll
 
     if not createdFrom then createdFrom = PlayState end
 
@@ -269,12 +270,15 @@ function Note:clipToStrumNote(myStrum)
         end
 
         if myStrum.downScroll then
-
+            if (self.y - self.offset.y + self.height >= center) then
+                swagRect.y = self:getFrameHeight() * self.scale.y * 1.3
+                swagRect.width = self:getFrameWidth() * self.scale.x
+                swagRect.height = vert / self.scale.y
+            end
         elseif (self.y + self.offset.y <= center) then
             swagRect.y = vert
             swagRect.width = self:getFrameWidth() * self.scale.x
             swagRect.height = self:getFrameHeight() * self.scale.y * 1.3
-            --print(swagRect.y, swagRect.height)
         else
             -- default to full frame
             swagRect.y = 0

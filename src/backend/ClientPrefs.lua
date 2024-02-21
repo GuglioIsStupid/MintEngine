@@ -14,7 +14,7 @@ else
 end
 
 local SaveVariables = {
-    downScroll = false,
+    downScroll = true,
     middleScroll = false,
     opponentStrums = true,
     showFPS = true,
