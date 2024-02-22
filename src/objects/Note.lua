@@ -229,6 +229,7 @@ function Note:draw()
 end
 
 function Note:followStrumNote(myStrum, fakeCrochet, songSpeed)
+    if not myStrum then return end
     local songSpeed = songSpeed or 1
     
     local strumX, strumY = myStrum.x, myStrum.y
@@ -261,6 +262,7 @@ function Note:followStrumNote(myStrum, fakeCrochet, songSpeed)
 end
 
 function Note:clipToStrumNote(myStrum)
+    if not myStrum then return end
     local center = myStrum.y + Note.swagWidth/1.35
     local vert = center - self.y
     if self.isSustainNote and (self.mustPress or not self.ignoreNote) and ((not self.mustPress) or (self.wasGoodHit or (self.prevNote.wasGoodHit and not self.canBeHit))) then
