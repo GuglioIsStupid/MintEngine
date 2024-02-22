@@ -69,7 +69,7 @@ function CreditsState:enter()
         -- Name - Icon name - Description - Link - BG Color
         -- if Icon name is n/a, none will be loaded.
         {"Mint Engine Team"},
-        {"GuglioIsStupid", "n/a", "Main Programmer of Mint Engine", "https://twitter.com/GuglioIs2Stupid", "#FF00FF"},
+        {"GuglioIsStupid", "n/a", "Main Programmer of Mint Engine", "https://twitter.com/GuglioIsStupid", "#FF00FF"},
         {""},
         {"Special Thanks"},
         {"Shadow Mario", "shadowmario", "Main Programmer of Psych Engine", "https://twitter.com/Shadow_Mario_", "#444444"},
