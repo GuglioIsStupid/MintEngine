@@ -532,7 +532,6 @@ function PlayState:enter()
     self:generateSong(self.SONG.song)
 
     for i, event in ipairs(self.eventsPushed) do
-        print("starting event " .. event)
         self:startLuasOnFolder("custom_events/" .. event .. ".lua")
     end
 
@@ -664,23 +663,9 @@ end
 function PlayState:moveCamera(isDad)
     if self.camTween then Timer.cancel(self.camTween) end
     if isDad then
-        --print( self.dad:getMidpoint().x + 150 + self.dad.cameraPosition[1] + self.opponentCameraOffset[1], self.dad:getMidpoint().y - 100 + self.dad.cameraPosition[2] + self.opponentCameraOffset[2])
-        --[[ self.camTween = Timer.tween(self.cameraSpeed, self.camFollow, 
-            {
-                x = self.dad:getMidpoint().x + 150 + self.dad.cameraPosition[1] + self.opponentCameraOffset[1], 
-                y = self.dad:getMidpoint().y - 100 + self.dad.cameraPosition[2] + self.opponentCameraOffset[2]
-            }, "out-quad"
-        )  ]]
         self.camFollow.x = self.dad:getMidpoint().x + 150 + self.dad.cameraPosition[1] + self.opponentCameraOffset[1]
         self.camFollow.y = self.dad:getMidpoint().y - 100 + self.dad.cameraPosition[2] + self.opponentCameraOffset[2]
     else
-        --print( self.boyfriend:getMidpoint().x - 100 - self.boyfriend.cameraPosition[1] - self.boyfriendCameraOffset[1], self.boyfriend:getMidpoint().y - 100 + self.boyfriend.cameraPosition[2] + self.boyfriendCameraOffset[2])
-        --[[ self.camTween = Timer.tween(self.cameraSpeed, self.camFollow, 
-            {
-                x = self.boyfriend:getMidpoint().x - 100 - self.boyfriend.cameraPosition[1] - self.boyfriendCameraOffset[1], 
-                y = self.boyfriend:getMidpoint().y - 100 + self.boyfriend.cameraPosition[2] + self.boyfriendCameraOffset[2]
-            }, "out-quad"
-        )  ]]
         self.camFollow.x = self.boyfriend:getMidpoint().x - 100 - self.boyfriend.cameraPosition[1] - self.boyfriendCameraOffset[1]
         self.camFollow.y = self.boyfriend:getMidpoint().y - 100 + self.boyfriend.cameraPosition[2] + self.boyfriendCameraOffset[2]
 
@@ -769,16 +754,8 @@ function PlayState:update(dt)
             note.spawned = true
             note.camera = self.camHUD
             self:callOnLuas("onCreatePost", {note})
-            --print(#self.notes.members)
         end
     end
-
-    -- set camGame to camFollow
-    --[[ self.camGame.x, self.camGame.y = self.camFollow.x, self.camFollow.y
-    self.camGame.target.x, self.camGame.target.y = self.camFollow.x, self.camFollow.y ]]
-    --[[   self.camGame.x = CoolUtil.coolLerp(self.camGame.x, self.camFollow.x, 1)
-    self.camGame.y = CoolUtil.coolLerp(self.camGame.y, self.camFollow.y, 1) ]]
-    --print(self.camGame.x, self.camGame.y, self.camFollow.x, self.camFollow.y)
 
     if self.camZooming then
         self.camGame.zoom = math.lerp(self.defaultCamZoom, self.camGame.zoom, math.bound(1 - (dt * 3.125), 0, 1))
@@ -800,7 +777,6 @@ function PlayState:update(dt)
                 for i, note in ipairs(self.notes.members) do
                     local strumGroup = self.playerStrums
                     if not note.mustPress then strumGroup = self.opponentStrums end
-                    --print(#strumGroup.members, note.noteData)
                     local strum = strumGroup.members[note.noteData+1]
                     note:followStrumNote(strum, fakeCrochet, self.songSpeed)
 
@@ -839,7 +815,6 @@ function PlayState:update(dt)
                 for i, note in ipairs(self.sustainNotes.members) do
                     local strumGroup = self.playerStrums
                     if not note.mustPress then strumGroup = self.opponentStrums end
-                    --print(#strumGroup.members, note.noteData)
                     local strum = strumGroup.members[note.noteData+1]
                     note:followStrumNote(strum, fakeCrochet, self.songSpeed)
     
@@ -1002,7 +977,6 @@ function PlayState:triggerEvent(eventName, value1, value2, strumTime)
         )
     end
 
-    --print("Event: " .. eventName .. " | " .. value1 .. " | " .. value2 .. " | " .. strumTime)
     if stage then
         stage:eventCalled(eventName, value1, value2, f1, f2, strumTime)
     end
@@ -1347,6 +1321,7 @@ function PlayState:generateSong(dataPath)
     self.vocals = songData.needsVoices and love.audio.newSource(Paths.voices(dataPath), "stream") or nil
     --self.inst = love.audio.newSource("assets/songs/" .. dataPath .. "/" .. "Inst.ogg", "stream")
     self.inst = love.audio.newSource(Paths.inst(dataPath), "stream")
+    local basedEvents = false
 
     notes = Group()
     self:add(notes)
@@ -1364,33 +1339,58 @@ function PlayState:generateSong(dataPath)
     if love.filesystem.getInfo(file) or #songData.events > 0 then
         local eventsData
         if love.filesystem.getInfo(file) then
-            eventsData = json.decode(love.filesystem.read(file))
+            local decoded = json.decode(love.filesystem.read(file))
+            eventsData = decoded.song.events
+            if eventsData then basedEvents = true
+            else eventsData = decoded.song.notes end
         else
             eventsData = songData.events
         end
-        if #eventsData < 1 then
-            eventsData = songData.events
-        end
         for _, event in ipairs(eventsData) do
-            for i = 1, #event[2] do
-                -- avoid duplicate events
+            if basedEvents then
+                for i = 1, #event[2] do
+                    -- avoid duplicate events
 
-                local found = false
-                for i2, event2 in ipairs(self.eventNotes) do
-                    if event2[1] == event[1] and event2[2][1] == event[2][1] and event2[2][2] == event[2][2] and event2[2][3] == event[2][3] then
-                        found = true
+                    local found = false
+                    for i2, event2 in ipairs(self.eventNotes) do
+                        if event2[1] == event[1] and event2[2][1] == event[2][1] and event2[2][2] == event[2][2] and event2[2][3] == event[2][3] then
+                            found = true
+                        end
+                    end
+
+                    if not found then -- why does psych have 2 formats
+                        if type(event[2][1]) ~= "table" then
+                            self:makeEvent(event, i)
+                        else
+                            local new_event = {}
+                            new_event[1] = event[1]
+                            new_event[2] = event[2][1]
+                            self:makeEvent(new_event, i)
+                        end
                     end
                 end
-
-                if not found then -- why does psych have 2 formats
-                    if type(event[2][1]) ~= "table" then
-                        self:makeEvent(event, i)
-                    else
-                        local new_event = {}
-                        new_event[1] = event[1]
-                        new_event[2] = event[2][1]
-                        self:makeEvent(new_event, i)
-                    end
+            else
+                -- we in sections now
+                local sectionNotes = event.sectionNotes
+                for i, realEvent in ipairs(sectionNotes) do
+                    --[[
+                        [
+						4290,
+						-1,
+						"Hey!",
+						"0",
+						""
+					]
+                    ]]
+                    local e = {
+                        realEvent[1],
+                        {
+                            realEvent[3],
+                            realEvent[4],
+                            realEvent[5]
+                        }
+                    }
+                    self:makeEvent(e, i)
                 end
             end
         end
@@ -1426,7 +1426,6 @@ function PlayState:generateSong(dataPath)
             if floorSus > 0 then
                 for susNote = 0, floorSus do
                     local oldNote = self.unspawnNotes[#self.unspawnNotes]
-                    --print(daStrumTime + (Conductor.stepCrochet * susNote))
 
                     local sustainNote = Note(daStrumTime + (Conductor.stepCrochet * susNote), daNoteData, oldNote, true)
                     sustainNote.mustPress = gottaHitNote
@@ -1507,10 +1506,10 @@ end
 
 function PlayState:makeEvent(event, i)
     SubEvent = EventNote(
-        event[1],
-        event[2][1],
-        event[2][2],
-        event[2][3]
+        event[1], -- time
+        event[2][1], -- name
+        event[2][2], -- v1
+        event[2][3] -- v2
     )
     table.insert(self.eventNotes, SubEvent)
     self:eventPushed(SubEvent)

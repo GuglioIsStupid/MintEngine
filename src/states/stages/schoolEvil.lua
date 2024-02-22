@@ -22,12 +22,12 @@ function Stage:create()
         PlayState.startCallback = self.schoolIntro
     end
 end
---[[ 
+
 function Stage:createPost()
     local trail = Trail(PlayState.dad, "characters/" .. PlayState.dad.curCharacter, 4, 24, 0.3, 0.069)
     self:addBehindDad(trail)
 end
- ]]
+
 function Stage:beatHit()
     if self.bgGirls then self.bgGirls:dance() end
 end

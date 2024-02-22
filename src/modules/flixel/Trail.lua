@@ -1,6 +1,6 @@
 local Trail = Group:extend() -- I really need to get to porting sprite group...
 
-Trail.target = nil
+--[[ Trail.target = nil
 Trail.delay = 0
 Trail.xEnabled = true
 Trail.yEnabled = true
@@ -25,8 +25,8 @@ Trail._recentFlipY = {}
 Trail._recentAnimations = {}
 
 Trail._spriteOrigin = nil
-
-function Trail:new(target, graphic, length, delay, alpha, diff, camera)
+ ]]
+function Trail:new(target, graphic, length, delay, alpha, diff, camera, col)
     self.super.new(self)
 
     self._spriteOrigin = target.origin
@@ -36,6 +36,7 @@ function Trail:new(target, graphic, length, delay, alpha, diff, camera)
     self._transp = alpha or 0.4
     self._difference = diff or 0.05
     self.camera = camera or target.camera
+    self.colour = col or 0xFFFFFF
 
     self.xEnabled = true
     self.yEnabled = true
@@ -44,14 +45,16 @@ function Trail:new(target, graphic, length, delay, alpha, diff, camera)
     self.framesEnabled = true
 
     self._counter = 0
+    self._trailLength = 0
     
-    self.recentPositions = {}
-    self.recentAngles = {}
-    self.recentScales = {}
-    self.recentFrames = {}
-    self.recentFlipX = {}
-    self.recentFlipY = {}
-    self.recentAnimations = {}
+    self._recentPositions = {}
+    self._recentAngles = {}
+    self._recentScales = {}
+    self._recentFrames = {}
+    self._recentFlipX = {}
+    self._recentFlipY = {}
+    self._recentAnimations = {}
+    self._recentOffsets = {}
 
     self:increaseLength(length)
     self.solid = false
@@ -66,6 +69,7 @@ function Trail:destroy()
     self._recentFlipY = nil
     self._recentAnimations = nil
     self._spriteOrigin = nil
+    self._recentOffsets = nil
 
     self.target = nil
     self._graphic = nil
@@ -75,16 +79,15 @@ function Trail:update(dt)
     self._counter = self._counter + 1
 
     if self._counter >= self.delay and self._trailLength >= 1 then
-        self._counter = self._counter + 1
+        self._counter = 0
         
         local spritePosition = {x=0,y=0}
         if #self._recentPositions == self._trailLength then
-            spritePosition = self._recentPositions[1]
-            table.remove(self._recentPositions, 1)
+            spritePosition = table.remove(self._recentPositions, 1)
+        else
+            spritePosition = {x = self.target.x, y = self.target.y}
         end
-
-        spritePosition = {x = self.target.x - self.target.offset.x, y = self.target.y - self.target.offset.y}
-        table.insert(self._recentPositions, spritePosition)
+        table.insert(self._recentPositions, 1, spritePosition)
 
         if self.rotationsEnabled then
             self:cacheValue(self._recentAngles, self.target.angle)
@@ -93,44 +96,48 @@ function Trail:update(dt)
         if self.scaledEnabled then
             local spriteScale = {x = 1, y = 1}
             if #self._recentScales == self._trailLength then
-                spriteScale = self._recentScales[1]
-                table.remove(self._recentScales, 1)
+                spriteScale = table.remove(self._recentScales, 1)
             end
 
             spriteScale = {x = self.target.scale.x, y = self.target.scale.y}
-            table.insert(self._recentScales, spriteScale)
+            table.insert(self._recentScales, 1, spriteScale)
         end
 
-        if self.framesEnabled and self._graphic then
-            self:cacheValue(self._recentFrames, self.target.frame)
+        if self.framesEnabled then
+            self:cacheValue(self._recentFrames, self.target.curFrame)
             self:cacheValue(self._recentFlipX, self.target.flipX)
             self:cacheValue(self._recentFlipY, self.target.flipY)
-            self:cacheValue(self._recentAnimations, self.target.animation)
+            self:cacheValue(self._recentAnimations, self.target.curAnim)
+            self:cacheValue(self._recentOffsets, {x = self.target.offset.x, y = self.target.offset.y})
         end
 
         local trailSprite = nil
 
         for i = 1, #self._recentPositions do
-            trailSprite = self.members[i] or self.members[1] 
-            trailSprite.x = self._recentPositions[i].x or 0
-            trailSprite.y = self._recentPositions[i].y or 0
+            trailSprite = self.members[i]
+            trailSprite.x = self._recentPositions[i].x
+            trailSprite.y = self._recentPositions[i].y
+
+            
 
             if self.rotationsEnabled then
-                trailSprite.angle = self._recentAngles[i] or 0
+                trailSprite.angle = self._recentAngles[i] 
+                trailSprite.origin.x = self._spriteOrigin.x 
+                trailSprite.origin.y = self._spriteOrigin.y 
             end
 
             if self.scaledEnabled then
-                trailSprite.scale.x = self._recentScales[i].x or 1
-                trailSprite.scale.y = self._recentScales[i].y or 1
+                trailSprite.scale.x = self._recentScales[i].x 
+                trailSprite.scale.y = self._recentScales[i].y 
             end
 
-            if self.framesEnabled and self._graphic then
-                trailSprite.curFrame = self._recentFrames[i] or 1
-                trailSprite.flipX = self._recentFlipX[i] or false
-                trailSprite.flipY = self._recentFlipY[i] or false
+            if self.framesEnabled then
+                trailSprite.curFrame = self._recentFrames[i]
+                trailSprite.flipX = self._recentFlipX[i]
+                trailSprite.flipY = self._recentFlipY[i]
                 trailSprite.curAnim = self._recentAnimations[i]
-
-                trailSprite:play(trailSprite.curAnim.name)
+                trailSprite.offset.x = self._recentOffsets[i].x
+                trailSprite.offset.y = self._recentOffsets[i].y
             end
 
             trailSprite.exists = true
@@ -142,6 +149,9 @@ end
 
 function Trail:cacheValue(array, value)
     table.insert(array, value)
+    if #array > self._trailLength then
+        table.remove(array, 1)
+    end
 end
 
 function Trail:resetTrail()
@@ -170,22 +180,14 @@ function Trail:increaseLength(amount)
     for i = 1, self._trailLength do
         local trailSprite = Sprite(0, 0)
 
-        if not self.graphic then -- uhhh ignore, still wip
-            trailSprite:load(self.graphic)
-        else
-            trailSprite:load(self.graphic)
-        end
         trailSprite.exists = false
         trailSprite.active = false
+        trailSprite:loadFromSprite(self.target)
+        trailSprite.camera = PlayState.camGame
         self:add(trailSprite)
         trailSprite.alpha = self._transp
         self._transp = self._transp - self._difference
-        trailSprite.solid = self.solid
-        trailSprite.camera = self.camera
-        trailSprite.origin = self._spriteOrigin
-        trailSprite.scale.x = self.target.scale.x
-        trailSprite.scale.y = self.target.scale.y
-        trailSprite.x, trailSprite.y = self.target.x, self.target.y
+        trailSprite.color = hexToColor(self.colour or 0xFFFFFF)
 
         if trailSprite.alpha <= 0 then
             trailSprite:kill()

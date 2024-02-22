@@ -137,6 +137,17 @@ function Sprite:load(graphic, animated, frameWidth, frameHeight)
     return self
 end
 
+function Sprite:loadFromSprite(sprite)
+    self.graphic = sprite.graphic
+    
+    self.width, self.height = sprite.width, sprite.height
+    if sprite.frames then
+        self.frames = sprite.frames
+    end
+
+    return self
+end
+
 function Sprite:setFrames(frames)
     if self.frames then
         self.frames = nil
@@ -234,7 +245,6 @@ function Sprite:addByTiles(animName, frames, framerate, loops)
 
     for _, frame in ipairs(frames) do
         table.insert(anim.frames, self.frames.frames[frame])
-        print(self.frames.frames[frame].name)
     end
 
     if not self.animations then self.animations = {} end

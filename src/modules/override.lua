@@ -107,6 +107,13 @@ function table.contains(t, object)
     return table.indexOf(t, object) > -1
 end
 
+function table.clone(list, clone)
+    clone = clone or table.new(#list, 0)
+    for i, v in pairs(lsit) do
+        clone[i] = type(v) == "table" and table.clone(v) or v
+    end
+    return clone
+end
 -- Love functions
 love.random = {}
 
