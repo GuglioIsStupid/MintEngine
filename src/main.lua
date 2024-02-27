@@ -56,7 +56,7 @@ function love.load()
     -- FunkinLua
     ModchartSprite = require "FunkinLua.ModchartSprite"
     LuaUtils = require "FunkinLua.LuaUtils"
-    FunkinLua = require "FunkinLua.FunkinLua"
+    FunkinLua = require "funkinlua.FunkinLua"
 
     -- Objects
     StrumNote = require "objects.StrumNote"
