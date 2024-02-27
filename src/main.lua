@@ -54,8 +54,8 @@ function love.load()
     UITabMenu = require "modules.flixel.ui.FlxUITabMenu"
 
     -- FunkinLua
-    ModchartSprite = require "FunkinLua.ModchartSprite"
-    LuaUtils = require "FunkinLua.LuaUtils"
+    ModchartSprite = require "funkinlua.ModchartSprite"
+    LuaUtils = require "funkinlua.LuaUtils"
     FunkinLua = require "funkinlua.FunkinLua"
 
     -- Objects
