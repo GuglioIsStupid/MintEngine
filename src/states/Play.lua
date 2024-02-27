@@ -274,6 +274,7 @@ function PlayState:resetValues()
 
     self.members = {}
     self.startingSong = true
+    self.startedCountdown = false
 
     self.antialiasing = false
 
@@ -561,12 +562,16 @@ function PlayState:enter()
         self.startCallback(stage)
     end
     MusicBeatState:fadeIn(0.8, function()
+        print("fade in")
         PlayState.generatedMusic = true
         PlayState.updateTime = true
         if self.startCallback == self.startCountdown then
             self:startCallback()
+            print("start callback")
+
         end
     end)
+    print("end of enter")
 
     self:reloadHealthbarColours()
     self:recalculateRating()
@@ -588,12 +593,12 @@ function PlayState:moveCameraSection(sec)
         self.camFollow.x = self.gf:getMidpoint().x + self.gf.cameraPosition[1] + self.girlfriendCameraOffset[1]
         self.camFollow.y = self.gf:getMidpoint().y + self.gf.cameraPosition[2] + self.girlfriendCameraOffset[2] - 50
         self:tweenCamIn()
-        self:callOnLuas("onMoveCaamera", {"gf"})
+        self:callOnLuas("onMoveCamera", {"gf"})
         return;
     end
 
     self:moveCamera(isDad)
-    self:callOnLuas("onMovecamera", {isDada and "dad" or "boyfriend"})
+    self:callOnLuas("onMoveCamera", {isDada and "dad" or "boyfriend"})
 end
 
 function PlayState:updateScore(miss)
@@ -1102,7 +1107,9 @@ function PlayState:endSong()
                         self.vocals:stop()
                     end
 
-                    MusicBeatState:fadeOut(0.3, function() MusicBeatState:switchState(PlayState) end)
+                    MusicBeatState:fadeOut(0.3, function() 
+                        MusicBeatState:switchState(PlayState) 
+                    end)
                 end
             else
                 MusicBeatState:fadeOut(0.3, function() MusicBeatState:switchState(FreeplayState) end)
