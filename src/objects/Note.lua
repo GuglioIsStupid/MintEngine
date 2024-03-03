@@ -263,7 +263,7 @@ end
 
 function Note:clipToStrumNote(myStrum)
     if not myStrum then return end
-    local center = myStrum.y + Note.swagWidth/1.35
+    local center = myStrum.y + self.offsetY + Note.swagWidth/2
     local vert = center - self.y
     if self.isSustainNote and (self.mustPress or not self.ignoreNote) and ((not self.mustPress) or (self.wasGoodHit or (self.prevNote.wasGoodHit and not self.canBeHit))) then
         local swagRect = self.clipRect
@@ -273,14 +273,14 @@ function Note:clipToStrumNote(myStrum)
 
         if myStrum.downScroll then
             if (self.y - self.offset.y + self.height >= center) then
-                swagRect.y = self:getFrameHeight() * self.scale.y * 1.3
                 swagRect.width = self:getFrameWidth() * self.scale.x
                 swagRect.height = vert / self.scale.y
+                swagRect.y = self:getFrameHeight() - swagRect.height
             end
         elseif (self.y + self.offset.y <= center) then
             swagRect.y = vert
             swagRect.width = self:getFrameWidth() * self.scale.x
-            swagRect.height = self:getFrameHeight() * self.scale.y * 1.3
+            swagRect.height = self:getFrameHeight() * self.scale.y - vert
         else
             -- default to full frame
             swagRect.y = 0

@@ -117,7 +117,7 @@ function FunkinLua:new(scriptName)
     self:set('dadName', PlayState.SONG.player2);
     self:set('gfName', PlayState.SONG.gfVersion);
 
-    --[[ self:set('downScroll', ClientPrefs.data.downScroll);
+    self:set('downScroll', ClientPrefs.data.downScroll);
     self:set('middlescroll', ClientPrefs.data.middleScroll);
     self:set('framerate', ClientPrefs.data.framerate);
     self:set('ghostTapping', ClientPrefs.data.ghostTapping);
@@ -130,7 +130,7 @@ function FunkinLua:new(scriptName)
     self:set('healthBarAlpha', ClientPrefs.data.healthBarAlpha);
     self:set('noResetButton', ClientPrefs.data.noReset);
     self:set('lowQuality', ClientPrefs.data.lowQuality);
-    self:set('shadersEnabled', ClientPrefs.data.shaders); ]]
+    self:set('shadersEnabled', ClientPrefs.data.shaders);
     self:set('scriptName', scriptName);
     self:set('currentModDirectory', Mods.currentModDirectory);
 

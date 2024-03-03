@@ -1,6 +1,9 @@
 local mouseTimer, maxMouseTimer = 0, 1 -- time before mouse is hidden
 local lastMouseX, lastMouseY = 0, 0
 local pc = {"Windows", "Linux", "OS X"}
+local volume = 100
+local lastVolume = 100
+
 function love.load()
     require "config"
     -- Libraries
@@ -144,6 +147,21 @@ end
 function love.keypressed(key, scancode, isrepeat)
     if key == "7" then
         Gamestate.switch(Editors.ChartingState)
+    elseif key == "-" then
+        volume = math.clamp(volume - 10, 0, 100)
+        love.audio.setVolume(volume / 100)
+    elseif key == "=" then
+        volume = math.clamp(volume + 10, 0, 100)
+        love.audio.setVolume(volume / 100)
+    elseif key == "0" then
+        -- if volume is 0, then set it to the last volume
+        if volume == 0 then
+            volume = lastVolume
+        else
+            lastVolume = volume
+            volume = 0
+        end
+        love.audio.setVolume(volume / 100)
     end
 end
 

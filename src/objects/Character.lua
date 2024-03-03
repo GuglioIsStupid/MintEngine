@@ -83,7 +83,12 @@ function Character:new(x, y, character, isPlayer)
             if love.filesystem.getInfo(path) then
                 rawJson = json.decode(love.filesystem.read(path))
             else
-                rawJson = json.decode(love.filesystem.read("assets/characters/" .. characterPath))
+                if love.filesystem.getInfo("assets/characters/" .. characterPath) then
+                    rawJson = json.decode(love.filesystem.read("assets/characters/" .. characterPath))
+                else
+                    -- default to bf
+                    rawJson = json.decode(love.filesystem.read("assets/characters/bf.json"))
+                end
             end
         else
             if love.filesystem.getInfo("assets/characters/" .. characterPath) then
