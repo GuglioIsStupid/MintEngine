@@ -1,0 +1,3 @@
+local path = ...
+
+Paths = require(path .. ".Paths")

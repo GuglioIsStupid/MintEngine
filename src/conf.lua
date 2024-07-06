@@ -1,5 +1,5 @@
 local jit = require("jit")
-local love = require(".vscode.LanguageServerr.love")
+local love = require("love")
 local Config = require("Funkin.Config")
 
 local DEBUG = Config.Debug

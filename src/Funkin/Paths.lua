@@ -14,10 +14,43 @@ function Paths.setCurrentLevel(level)
 end
 
 ---@param file string file path
+---@param library string library
 ---@return string the path to the file
 --- Retuns the path to the file 
-function Paths.getPath(file)
+function Paths.getPath(file, library)
+    --[[ return "assets/" .. file ]]
+
+    if library ~= nil then
+        return Paths.getLibraryPath(file, library)
+    end
+
+    if Paths.currentLevel ~= nil then
+        local levelPath = Paths.getLibraryPathForce(file, Paths.currentLevel)
+        if love.filesystem.getInfo(levelPath) then
+            return levelPath
+        end
+    end
+
+    local levelPath = Paths.getLibraryPath(file, "shared")
+    if love.filesystem.getInfo(levelPath) then
+        return levelPath
+    end
+
     return "assets/" .. file
+end
+
+---@param file string file path
+---@param library string library
+---@return string the path
+function Paths.getLibraryPath(file, library)
+    return ((library == "preload" or library == "default") and "assets/" .. file) or Paths.getLibraryPathForce(file, library)
+end
+
+---@param file string file path
+---@param library string library
+---@return string the path
+function Paths.getLibraryPathForce(file, library)
+    return "assets/" .. library .. "/" .. file
 end
 
 ---@param file string file path
