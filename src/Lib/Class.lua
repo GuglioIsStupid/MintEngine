@@ -14,7 +14,6 @@ class.__ID = "Class: 0x0000000000000000"
 -- Recreate smth like "Table: 0x0000000000000000"
 local idChars = "0123456789abcdef"
 
-
 ---@description Creates a new instance of the class
 ---@param ... any
 ---@return any
@@ -54,7 +53,7 @@ function class:implement(...)
 end
 
 ---@description Checks if the current class is an instance of the given class
----@param cls class
+---@param cls table
 ---@return boolean
 function class:isInstanceOf(cls)
     local m = getmetatable(self)

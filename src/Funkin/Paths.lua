@@ -14,7 +14,7 @@ function Paths.setCurrentLevel(level)
 end
 
 ---@param file string file path
----@param library string library
+---@param library? string library
 ---@return string the path to the file
 --- Retuns the path to the file 
 function Paths.getPath(file, library)

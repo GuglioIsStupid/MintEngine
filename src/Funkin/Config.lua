@@ -1,5 +1,6 @@
+---@diagnostic disable: duplicate-doc-alias
 -- Lua language server configs
----@diagnostic disable-next-line: duplicate-doc-alias
+---@alias number number?
 ---@alias integer number?
 ---@alias int integer
 ---@alias float number
