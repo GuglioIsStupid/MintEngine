@@ -1,0 +1,22 @@
+-- Lua language server configs
+---@alias int integer
+
+-- Game configs
+local Config = {}
+
+Config.WindowWidth = 1280
+Config.WindowHeight = 720
+
+Config.GameWidth = 1280
+Config.GameHeight = 720
+
+Config.Resizable = true
+
+Config.Version = "11.5.0"
+
+Config.Company = "GuglioIsStupid"
+Config.Identity = "LoveFNF"
+
+Config.Debug = not love.filesystem.isFused()
+
+return Config

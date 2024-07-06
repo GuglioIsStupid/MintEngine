@@ -1,0 +1,81 @@
+--- Full asset path formatting
+---@class Paths
+local Paths = {}
+
+--- The current level
+---@type (string | nil)
+Paths.currentLevel = nil
+
+---@param level string current level
+--- Sets the current level
+---@return nil
+function Paths.setCurrentLevel(level)
+    Paths.currentLevel = string.lower(level)
+end
+
+---@param file string file path
+---@return string the path to the file
+--- Retuns the path to the file 
+function Paths.getPath(file)
+    return "assets/" .. file
+end
+
+---@param file string file path
+---@return string the path to the file
+--- Returns the path to the file
+function Paths.file(file)
+    return "assets/" .. file
+end
+
+---@param key string txt file
+---@return string the path to the txt file
+--- Returns the path to the txt file
+function Paths.txt(key)
+    return Paths.getPath("data/" .. key .. ".txt")
+end
+
+---@param key string frag file
+---@return string the path to the frag file
+--- Returns the path to the frag file
+function Paths.frag(key)
+    return Paths.getPath("shaders/" .. key .. ".frag")
+end
+
+---@param key string vert file
+---@return string the path to the vert file
+--- Returns the path to the vert file
+function Paths.vert(key)
+    return Paths.getPath("shaders/" .. key .. ".vert")
+end
+
+---@param key string xml file
+---@return string the path to the xml file
+--- Returns the path to the xml file
+function Paths.xml(key)
+    return Paths.getPath("data/" .. key .. ".xml")
+end
+
+---@param key string json file
+---@return string the path to the json file
+--- Returns the path to the json file
+function Paths.json(key)
+    return Paths.getPath("data/" .. key .. ".json")
+end
+
+---@param key string sound file
+---@return string the path to the sound file
+--- Returns the path to the sound file
+function Paths.sound(key)
+    return Paths.getPath("sounds/" .. key .. ".ogg")
+end
+
+---@param key string sound file
+---@param min int min value
+---@param max int max value
+---@return string the path to the sound file
+--- Returns the path to the random sound file
+function Paths.soundRandom(key, min, max)
+    return Paths.getPath("sounds/" .. key .. love.math.random(min, max) .. ".ogg")
+end
+
+return Paths
