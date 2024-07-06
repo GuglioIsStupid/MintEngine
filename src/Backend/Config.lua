@@ -6,6 +6,7 @@
 ---@alias float number
 
 -- Game configs
+---@class Config
 local Config = {}
 
 Config.WindowWidth = 1280

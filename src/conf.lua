@@ -27,4 +27,6 @@ function love.conf(t)
     t.version = Config.Version
 
     t.identity = Config.Identity
+
+    t.console = true
 end

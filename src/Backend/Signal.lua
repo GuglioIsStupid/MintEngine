@@ -3,8 +3,6 @@ local Signal = Class:extend()
 
 function Signal:new()
     self.functions = {}
-
-    print("[Signal] Created Signal")
 end
 
 function Signal:add(func)
