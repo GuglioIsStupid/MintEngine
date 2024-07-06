@@ -48,13 +48,15 @@ end
 ---@param value any
 ---@return any
 function table.find(table, value)
-    for _, v in pairs(table) do
+    local index = -1
+    for i, v in pairs(table) do
         if v == value then
+            index = i
             return v
         end
     end
 
-    return nil
+    return index
 end
 
 table.contains = table.find

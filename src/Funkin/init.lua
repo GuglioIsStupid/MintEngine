@@ -7,3 +7,7 @@ end
 Constants = r("util.Constants")
 Paths = r("Paths")
 Conductor = r("Conductor")
+
+MusicBeatState = r("UI.MusicBeatState")
+
+TitleState = r("Title.TitleState")
