@@ -7,10 +7,16 @@ function Signal:new()
     print("[Signal] Created Signal")
 end
 
-function Signal:add(...)
-    local args = {...}
-    for i = 1, #args do
-        table.insert(self.functions, args[i])
+function Signal:add(func)
+    table.insert(self.functions, func)
+end
+
+function Signal:remove(func)
+    for i, f in ipairs(self.functions) do
+        if f == func then
+            table.remove(self.functions, i)
+            break
+        end
     end
 end
 

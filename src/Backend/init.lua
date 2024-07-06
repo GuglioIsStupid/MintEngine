@@ -6,3 +6,4 @@ end
 
 Signal = r("Signal")
 r("Lua.String")
+r("Lua.Table")
