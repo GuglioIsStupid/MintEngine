@@ -199,4 +199,7 @@ function Group:revive()
     self:reviveMembers()
 end
 
+function Group:getCameras()
+end
+
 return Group

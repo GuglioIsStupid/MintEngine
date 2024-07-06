@@ -10,13 +10,13 @@ function love.load()
 
     --[[ print(love.filesystem.read(Paths.txt('introText'))) ]]
 
-    currentState = TitleState()
+    CurrentState = TitleState()
 end 
 
 function love.update(dt)
-    currentState:update(dt)
+    CurrentState:update(dt)
 end
 
 function love.draw()
-    currentState:draw()
+    CurrentState:draw()
 end

@@ -78,6 +78,7 @@ function Data:clone() end
 ---
 ---[Open in Browser](https://love2d.org/wiki/Data:getFFIPointer)
 ---
+---@diagnostic disable-next-line: undefined-doc-name
 ---@return ffi.cdata* pointer # A raw void* pointer to the Data, or nil if FFI is unavailable.
 function Data:getFFIPointer() end
 
@@ -330,5 +331,8 @@ function Object:typeOf(name) end
 ---Callback function triggered when the mouse wheel is moved.
 ---
 ---@alias love.wheelmoved fun(x: number, y: number)
+
+--- The current os
+---@alias love._os string
 
 return love

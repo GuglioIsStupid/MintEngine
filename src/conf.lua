@@ -1,4 +1,5 @@
 local jit = require("jit")
+---@class love
 local love = require("love")
 local Config = require("Backend.Config")
 

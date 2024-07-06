@@ -15,3 +15,9 @@ Container = r("Container")
 
 State = r("State")
 TransitionableState = r("TransitionableState")
+
+Point = r("Point")
+
+Basic = r("Basic")
+Object = r("Object")
+Sprite = r("Sprite")
