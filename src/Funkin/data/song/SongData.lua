@@ -1,0 +1,3 @@
+---@class SongMetadata
+
+---@class SongTimeChange

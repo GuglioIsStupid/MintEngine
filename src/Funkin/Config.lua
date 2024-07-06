@@ -1,5 +1,6 @@
 -- Lua language server configs
 ---@alias int integer
+---@alias float number
 
 -- Game configs
 local Config = {}
@@ -15,7 +16,7 @@ Config.Resizable = true
 Config.Version = "11.5.0"
 
 Config.Company = "GuglioIsStupid"
-Config.Identity = "LoveFNF"
+Config.Identity = "MintEngine"
 
 Config.Debug = not love.filesystem.isFused()
 

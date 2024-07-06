@@ -1,4 +1,3 @@
----@class class 
 local class = {
   _NAME = "Class",
   _VERSION = "1.0.0",
@@ -22,7 +21,7 @@ local idChars = "0123456789abcdef"
 function class:new(...) end
 
 ---@description Creates a new class that extends the current class
----@return class --[[In reality, this is a table. But for the sake of the documentation, it's a class.]]
+---@return table --[[In reality, this is a table. But for the sake of the documentation, it's a class.]]
 function class:extend()
     local cls = {}
     for k, v in pairs(self) do

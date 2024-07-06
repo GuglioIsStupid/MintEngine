@@ -4,6 +4,5 @@ local function r(p)
     return require(path .. "." .. p)
 end
 
-Constants = r("Constants")
-Paths = r("Paths")
-Conductor = r("Conductor")
+Signal = r("Signal")
+r("Lua.String")
