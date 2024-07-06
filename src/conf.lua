@@ -1,6 +1,6 @@
 local jit = require("jit")
 local love = require("love")
-local Config = require("Funkin.Config")
+local Config = require("Backend.Config")
 
 local DEBUG = Config.Debug
 local love_VerMajor, love_VerMinor, love_VerRevision, love_VerCodename = love.getVersion()

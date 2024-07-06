@@ -1,9 +1,10 @@
 function love.load()
+    Config = require("Backend.Config")
     Class = require("Lib.Class")
     require("Backend")
     require("Funkin")
 
-    print(love.filesystem.read(Paths.txt('introText')))
+    --[[ print(love.filesystem.read(Paths.txt('introText'))) ]]
 end 
 
 function love.update()
