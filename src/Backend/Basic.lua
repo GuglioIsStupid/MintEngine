@@ -50,6 +50,12 @@ function Basic:draw()
     if Config.Debug then
         Basic.visibleCount = Basic.visibleCount + 1
     end
+
+    for _, camera in ipairs(self.cameras or Camera._defaultCameras) do
+        if camera.visible and camera.exists then
+            table.insert(camera.renders, self)
+        end
+    end
 end
 
 function Basic:getCameras()

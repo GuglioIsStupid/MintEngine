@@ -3,12 +3,16 @@ local Signal = Class:extend()
 
 function Signal:new()
     self.functions = {}
+
+    print("Created Signal")
 end
 
+---@param func function
 function Signal:add(func)
     table.insert(self.functions, func)
 end
 
+---@param func function
 function Signal:remove(func)
     for i, f in ipairs(self.functions) do
         if f == func then

@@ -1,5 +1,5 @@
 ---@class Group
-local Group = Class:extend()
+local Group = Basic:extend()
 
 ---@param member table
 ---@return any
@@ -15,6 +15,8 @@ function Group:new(maxSize)
     self.maxSize = math.floor(math.abs(maxSize or 0)) -- 0 = unlimited
     self.length = 0 
     self._cameras = nil
+
+    Basic.new(self)
 end
 
 ---@return nil
@@ -68,16 +70,17 @@ end
 ---@return (table | nil)
 function Group:add(member)
     if member == nil then
-        print("[Group] Cannot add a `nil` object to a Group")
+        print("Cannot add a `nil` object to a Group")
         return nil
     end
 
     if table.contains(self.members, member) ~= -1 then
+        print("Member already in group")
         return member
     end
 
     if self.maxSize > 0 and self.length >= self.maxSize then
-        print("[Group] Attempted to add member to filled Group")
+        print("Attempted to add member to filled Group (Size: " .. self.maxSize .. ")")
         return member
     end
 

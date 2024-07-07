@@ -12,12 +12,19 @@ function TitleState:create()
     self.overlay = nil
 
     MusicBeatState.create(self)
+
+    self.logoBl = Sprite(-150, -100)
+    self.logoBl:setFrames(Paths.getSparrowAtlas("logoBumpin"))
+    self.logoBl:addAnimByPrefix("bump", "logo bumpin", 24, false)
+    self.logoBl:play("bump")
+	self.logoBl:updateHitbox()
+
+    self:add(self.logoBl)
 end
 
+---@param dt number
 function TitleState:update(dt)
     MusicBeatState.update(self, dt)
-
-    print("[TitleState] IN TITLE STATE")
 end
 
 return TitleState

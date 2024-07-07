@@ -15,8 +15,7 @@ function Point:new(x, y)
     return self
 end
 
----@return any
----@return any
+---@return any, any
 function Point:get()
     return self.x or 0, self.y or 0
 end

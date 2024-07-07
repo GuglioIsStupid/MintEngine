@@ -2,6 +2,9 @@
     "pixelbyte.love2d.srcDir": "./src/",
     "Lua.diagnostics.globals": [
         "bit"
+    ],
+    "Lua.diagnostics.disable": [
+        "redefined-local"
     ]
 
 }

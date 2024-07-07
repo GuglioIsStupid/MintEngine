@@ -102,6 +102,13 @@ function Paths.sound(key)
     return Paths.getPath("sounds/" .. key .. ".ogg")
 end
 
+---@param key string image path
+---@return string the path to the image file
+--- Returns the path to the image file
+function Paths.image(key)
+    return Paths.getPath("images/" .. key .. ".png")
+end
+
 ---@param key string sound file
 ---@param min int min value
 ---@param max int max value
@@ -109,6 +116,32 @@ end
 --- Returns the path to the random sound file
 function Paths.soundRandom(key, min, max)
     return Paths.getPath("sounds/" .. key .. love.math.random(min, max) .. ".ogg")
+end
+
+---@param key string path to image/xmlsheet
+---@return ({frames: table<frame>, graphic: love.Drawable} | nil)
+function Paths.getSparrowAtlas(key)
+    local graphicPath, xmlPath = Paths.image(key), Paths.file("images/" .. key .. ".xml")
+    local graphic = Graphic:getGraphic(graphicPath)
+    local obj = {frames = {}, graphic = graphic}
+    if graphic and love.filesystem.getInfo(xmlPath) then
+        local sw, sh = graphic:getDimensions()
+        ---@diagnostic disable-next-line: empty-block, param-type-mismatch
+        for _, child in ipairs(Xml.parse(love.filesystem.read(xmlPath))) do
+            if child.tag == "SubTexture" then
+                table.insert(obj.frames, Sprite.CreateFrame(
+                    child.attr.name,
+                    tonumber(child.attr.x), tonumber(child.attr.y),
+                    tonumber(child.attr.width), tonumber(child.attr.height),
+                    sw, sh,
+                    tonumber(child.attr.frameX), tonumber(child.attr.frameY),
+                    tonumber(child.attr.frameWidth), tonumber(child.attr.frameHeight)
+                ))
+            end
+        end
+    end
+
+    return obj
 end
 
 return Paths

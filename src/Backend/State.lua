@@ -55,9 +55,9 @@ function State:onResize(Width, Height)
 
 end
 
+---@param dt number
 function State:tryUpdate(dt)
     if self.persistentUpdate or self.subState == nil then
-        print("YEah")
         Container.update(self, dt)
     end
 

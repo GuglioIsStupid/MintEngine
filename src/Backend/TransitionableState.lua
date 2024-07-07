@@ -1,6 +1,9 @@
 ---@class TransitionableState : State
 local TransitionableState = State:extend()
 
+TransitionableState.defaultTransIn = nil
+TransitionableState.defaultTransOut = nil
+
 function TransitionableState:new(transIn, transOut)
     self.skipNextTransIn = false
     self.skipNextTransOut = false

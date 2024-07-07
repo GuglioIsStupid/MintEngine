@@ -4,20 +4,25 @@ local function r(p)
     return require(path .. "." .. p)
 end
 
-Signal = r("Signal")
 r("Lua.String")
 r("Lua.Table")
+
+Point = r("Point")
+
+Signal = r("Signal")
+
 Color = r("Color")
 
+Graphic = r("Graphic")
+
+--[[ Graphic:getGraphic("test") ]]
+
+Basic = r("Basic")
+Object = r("Object")
 Camera = r("Camera")
 Group = r("Group")
 Container = r("Container")
 
 State = r("State")
 TransitionableState = r("TransitionableState")
-
-Point = r("Point")
-
-Basic = r("Basic")
-Object = r("Object")
 Sprite = r("Sprite")

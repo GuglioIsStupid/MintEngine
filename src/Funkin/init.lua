@@ -11,3 +11,5 @@ Conductor = r("Conductor")
 MusicBeatState = r("UI.MusicBeatState")
 
 TitleState = r("Title.TitleState")
+
+SongMetadata, SongTimeChange = r("Data.Song.SongData")

@@ -1,3 +1,9 @@
+local oPrint = print
+function print(...)
+    local args = {...}
+    oPrint("[" .. (debug.getinfo(2, "S").source):gsub("@", ""):gsub(".lua", "") .. "] " .. args[1], select(2, ...))
+end
+
 function love.load()
     Config = require("Backend.Config")
     Class = require("Lib.Class")
@@ -8,15 +14,28 @@ function love.load()
     require("Backend")
     require("Funkin")
 
-    --[[ print(love.filesystem.read(Paths.txt('introText'))) ]]
+    Game = Group()
+    function Game:switchState(newState)
+        for _, member in ipairs(Game.members) do
+            if member:isInstanceOf(State) then
+                member:destroy()
+                self:remove(member)
+            end
+        end
 
-    CurrentState = TitleState()
+        newState:create()
+        self:add(newState)
+    end
+    table.insert(Camera._defaultCameras, Camera(0, 0, 1280, 720))
+    Game:add(Camera._defaultCameras[1])
+
+    Game:switchState(TitleState())
 end 
 
 function love.update(dt)
-    CurrentState:update(dt)
+    Game:update(dt)
 end
 
 function love.draw()
-    CurrentState:draw()
+    Game:draw()
 end
