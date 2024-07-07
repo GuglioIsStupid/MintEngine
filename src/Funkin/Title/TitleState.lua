@@ -1,6 +1,7 @@
 ---@class TitleState : MusicBeatState
 local TitleState = MusicBeatState:extend()
 TitleState.initialized = false
+TitleState.skippedIntro = true
 
 function TitleState:create()
     self.blackScreen = nil
@@ -11,15 +12,18 @@ function TitleState:create()
     self.curWacky = {}
     self.lastBeat = 0
     self.overlay = nil
-
-    MusicBeatState.create(self)
+    self.danceLeft = false
 
     self:startIntro()
+
+    MusicBeatState.create(self)
 end
 
 ---@param dt number
 function TitleState:update(dt)
     MusicBeatState.update(self, dt)
+
+    Conductor:update(Game.sound.music:tell() * 1000)
 end
 
 function TitleState:startIntro()
@@ -62,6 +66,22 @@ function TitleState:playMenuMusic()
         restartTrack = true
     })
 	Game.sound.music:fade(4, 0, 1)
+end
+
+function TitleState:beatHit()
+    if not MusicBeatState.beatHit(self) then return false end
+
+    if TitleState.skippedIntro  then
+        self.logoBl:play("bump", true)
+
+        self.danceLeft = not self.danceLeft
+
+        if self.danceLeft then
+            self.gfDance:play("danceRight")
+        else
+            self.gfDance:play("danceLeft")
+        end
+    end
 end
 
 return TitleState

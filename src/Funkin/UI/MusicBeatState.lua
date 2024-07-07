@@ -16,8 +16,8 @@ function MusicBeatState:create()
 
     self:createWatermarkText()
 
-    Conductor.beatHit:add(self.beatHit)
-    Conductor.stepHit:add(self.stepHit)
+    Conductor.beatHit:add(self.beatHit, self)
+    Conductor.stepHit:add(self.stepHit, self)
 end
 
 function MusicBeatState:destroy()
@@ -37,11 +37,11 @@ function MusicBeatState:createWatermarkText()
 end
 
 function MusicBeatState:stepHit()
-
+    return true
 end
 
 function MusicBeatState:beatHit()
-
+    return true
 end
 
 return MusicBeatState

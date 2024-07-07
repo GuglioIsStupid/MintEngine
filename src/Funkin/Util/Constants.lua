@@ -49,7 +49,7 @@ Constants.DEFAULT_TIME_SIGNATURE_DEN = 4
 Constants.PIXELS_PER_MS = 0.45
 Constants.HIT_WINDOW_MS = 160
 
-Constants.SECS_PER_MIIN =  60
+Constants.SECS_PER_MIN =  60
 Constants.MS_PER_SEC = 1000
 Constants.US_PER_MS = 1000
 

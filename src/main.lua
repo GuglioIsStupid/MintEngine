@@ -1,7 +1,10 @@
 local oPrint = print
 function print(...)
     local args = {...}
-    oPrint("[" .. (debug.getinfo(2, "S").source):gsub("@", ""):gsub(".lua", "") .. "] " .. args[1], select(2, ...))
+    for i = 1, #args do
+        args[i] = tostring(args[i])
+    end
+    oPrint("[" .. (debug.getinfo(2, "S").source):gsub("@", ""):gsub(".lua", "") .. "] " .. table.concat(args, " "))
 end
 
 function love.load()

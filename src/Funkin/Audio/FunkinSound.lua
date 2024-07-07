@@ -137,8 +137,12 @@ function FunkinSound:playMusic(key, params)
     end
 
     if params.mapTimeChanges then
-        local songMusicData = nil
-        -- TODO
+        local songMusicData = SongRegistry.parseMusicData(key)
+        if songMusicData ~= nil then
+            Conductor:mapTimeChanges(songMusicData)
+        else
+            print("Tried and failed to find music metadata for " .. key)
+        end
     end
 
     local pathsFunction = params.pathsFunction
