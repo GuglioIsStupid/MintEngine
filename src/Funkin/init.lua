@@ -7,6 +7,7 @@ end
 Constants = r("util.Constants")
 Paths = r("Paths")
 Conductor = r("Conductor")
+FunkinSound = r("Audio.FunkinSound")()
 
 MusicBeatState = r("UI.MusicBeatState")
 

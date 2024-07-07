@@ -66,7 +66,6 @@ function Sprite:load(graphic)
         self.graphic = graphic
     end
 
-    print(tostring(self.graphic))
     self.width, self.height = self.graphic:getDimensions()
 end
 
@@ -137,7 +136,6 @@ function Sprite:addAnimByPrefix(name, prefix, framerate, looped)
 		end
 	end
 	if not foundFrame then return end
-    print("Found frame")
 
 	table.sort(anim.frames, sortFramesByIndices(prefix, ""))
 

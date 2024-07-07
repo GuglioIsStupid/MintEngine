@@ -15,6 +15,7 @@ function love.load()
     require("Funkin")
 
     Game = Group()
+    Game.sound = require "Backend.SoundManager"
     function Game:switchState(newState)
         for _, member in ipairs(Game.members) do
             if member:isInstanceOf(State) then
@@ -35,6 +36,8 @@ end
 
 function love.update(dt)
     Game:update(dt)
+    Game.sound.update(dt)
+    FunkinSound:update(dt)
 end
 
 function love.draw()

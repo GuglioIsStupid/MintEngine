@@ -4,7 +4,7 @@ local Signal = Class:extend()
 function Signal:new()
     self.functions = {}
 
-    print("Created Signal")
+    --[[ print("Created Signal") ]]
 end
 
 ---@param func function

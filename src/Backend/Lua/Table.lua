@@ -128,6 +128,23 @@ function table.merge(t1, t2)
     return t1
 end
 
+---Merges two tables together
+---@param t1 table
+---@param t2 table?
+---@return table
+function table.mergeWithoutOverride(t1, t2)
+    for k, v in pairs(t2 or {}) do
+        if type(v) == "table" and type(t1[k] or false) == "table" then
+            table.mergeWithoutOverride(t1[k], v)
+        else
+            if t1[k] == nil then
+                t1[k] = v
+            end
+        end
+    end
+    return t1
+end
+
 ---Adds a value to the first index
 ---@param tbl table
 ---@param value any

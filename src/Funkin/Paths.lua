@@ -102,6 +102,13 @@ function Paths.sound(key)
     return Paths.getPath("sounds/" .. key .. ".ogg")
 end
 
+---@param key string sound file
+---@return string the path to the sound file
+--- Returns the path to the sound file
+function Paths.music(key)
+    return Paths.getPath("music/" .. key .. ".ogg")
+end
+
 ---@param key string image path
 ---@return string the path to the image file
 --- Returns the path to the image file

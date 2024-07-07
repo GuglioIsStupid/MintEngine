@@ -1,5 +1,6 @@
 ---@class TitleState : MusicBeatState
 local TitleState = MusicBeatState:extend()
+TitleState.initialized = false
 
 function TitleState:create()
     self.blackScreen = nil
@@ -13,6 +14,18 @@ function TitleState:create()
 
     MusicBeatState.create(self)
 
+    self:startIntro()
+end
+
+---@param dt number
+function TitleState:update(dt)
+    MusicBeatState.update(self, dt)
+end
+
+function TitleState:startIntro()
+    if not TitleState.initialized or Game.sound.music == nil then 
+        self:playMenuMusic() 
+    end
     self.gfDance = Sprite(Game.width * 0.4, Game.height * 0.07)
 	self.gfDance:setFrames(Paths.getSparrowAtlas("gfDanceTitle"))
 	self.gfDance:addAnimByIndices("danceLeft", "gfDance", {
@@ -42,9 +55,13 @@ function TitleState:create()
     self:add(self.titleText)
 end
 
----@param dt number
-function TitleState:update(dt)
-    MusicBeatState.update(self, dt)
+function TitleState:playMenuMusic()
+    FunkinSound:playMusic("freakyMenu", {
+        startingVolume = 0,
+        overrideExisting = true,
+        restartTrack = true
+    })
+	Game.sound.music:fade(4, 0, 1)
 end
 
 return TitleState
