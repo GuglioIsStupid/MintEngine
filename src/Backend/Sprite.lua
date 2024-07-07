@@ -1,3 +1,4 @@
+---@diagnostic disable: undefined-field
 ---@class Sprite : Object
 
 Sprite = Object:extend()
@@ -65,6 +66,7 @@ function Sprite:load(graphic)
         self.graphic = graphic
     end
 
+    print(tostring(self.graphic))
     self.width, self.height = self.graphic:getDimensions()
 end
 
@@ -138,6 +140,45 @@ function Sprite:addAnimByPrefix(name, prefix, framerate, looped)
     print("Found frame")
 
 	table.sort(anim.frames, sortFramesByIndices(prefix, ""))
+
+	if not self.anims then self.anims = {} end
+	self.anims[name] = anim
+end
+
+---@param name string
+---@param prefix string
+---@param indices table
+---@param framerate? number
+---@param looped? boolean
+function Sprite:addAnimByIndices(name, prefix, indices, postfix, framerate, looped)
+	if postfix == nil then postfix = "" end
+	if framerate == nil then framerate = 30 end
+	if looped == nil then looped = true end
+
+	local anim = {
+		name = name,
+		framerate = framerate,
+		looped = looped,
+		frames = {}
+	}
+
+	local allFrames, foundFrame = {}, false
+	local notPostfix = #postfix <= 0
+	for _, f in ipairs(self.frames) do
+		if f.name:startsWith(prefix) and
+			(notPostfix or f.name:endsWith(postfix)) then
+			foundFrame = true
+			table.insert(allFrames, f)
+		end
+	end
+	if not foundFrame then return end
+
+	table.sort(allFrames, sortFramesByIndices(prefix, postfix))
+
+	for _, i in ipairs(indices) do
+		local f = allFrames[i + 1]
+		if f then table.insert(anim.frames, f) end
+	end
 
 	if not self.anims then self.anims = {} end
 	self.anims[name] = anim

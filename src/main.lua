@@ -26,6 +26,7 @@ function love.load()
         newState:create()
         self:add(newState)
     end
+    Game.width, Game.height = Config.GameWidth, Config.GameHeight
     table.insert(Camera._defaultCameras, Camera(0, 0, 1280, 720))
     Game:add(Camera._defaultCameras[1])
 
