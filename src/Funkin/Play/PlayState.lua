@@ -101,9 +101,10 @@ function PlayState:create()
     Conductor:forceBPM(nil)
 
     if chart.offsets ~= nil then
-        Conductor.instrumentalOffset = chart.offsets:getInstrumentalOffset()
+        Conductor.instrumentalOffset = chart.offsets--[[ :getInstrumentalOffset() ]]
     end
 
+    print(chart.timeChanges)
     Conductor.mapTimeChanges(chart.timeChanges)
     Conductor.update((Conductor.get_beatLengthMs() * -5) + self.startTimestamp)
 

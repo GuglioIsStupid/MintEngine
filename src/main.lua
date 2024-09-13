@@ -43,7 +43,6 @@ function love.load()
         targetSong = songData,
         targetDifficulty = "hard"
     }
-    print(songData)
     Game:switchState(PlayState(params))
 end 
 
@@ -51,6 +50,8 @@ function love.update(dt)
     Game:update(dt)
     Game.sound.update(dt)
     FunkinSound:update(dt)
+
+    print("sex")
 end
 
 function love.draw()

@@ -24,7 +24,8 @@ function BaseRegistry:fetchEntry(id)
 end
 
 function BaseRegistry:createEntry(id)
-    return BaseRegistry(id)
+    ---@diagnostic disable-next-line: undefined-field
+    return self.generic and self.generic(id) or BaseRegistry(id)
 end
 
 return BaseRegistry

@@ -102,8 +102,59 @@ end
 ---@param objectFactory table
 ---@param force boolean
 ---@return nil
-function Group:recycle(objectClass, objectFactory, force, revive)
+function Group:recycle(objectClass, objectFactory, force)
+    local function createObject()
+        if objectFactory ~= nil then
+            return self:add(objectFactory())
+        end
 
+        if objectClass ~= nil then
+            return self:add(objectClass())
+        end
+
+        return nil
+    end
+
+    if self.maxSize > 0 then
+        if self.length < self.maxSize then
+            return createObject()
+        end
+
+        local basic = self.members[self._marker]
+        self._marker = self._marker + 1
+
+        if self._marker >= self.maxSize then
+            self._marker = 0
+        end
+
+        basic:revive()
+
+        return basic
+    end
+
+    local basic = self:getFirstAvailable(objectClass, force)
+
+    if basic ~= nil then
+        basic:revive()
+        return basic
+    end
+
+    return createObject()
+end
+
+---@param objectClass table
+---@param force boolean
+---@return (table|nil)  
+function Group:getFirstAvailable(objectClass, force)
+    local result = self:getFirst(function(member)
+        return member and member.exists and member:isInstanceOf(objectClass) and (force or not member.active)
+    end)
+
+    if result == nil then
+        return nil
+    end
+
+    return result
 end
 
 ---@param member table

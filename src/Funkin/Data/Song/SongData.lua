@@ -2,9 +2,13 @@
 local SongMetadata = Class:extend()
 
 ---@class SongTimeChange
-local SongTimeChange = Class:extend()
+SongTimeChange = Class:extend()
 
 ---@class SongOffsets
-local SongOffsets = Class:extend()
+SongOffsets = Class:extend()
 
-return SongMetadata, SongTimeChange, SongOffsets
+function SongOffsets:getVocalOffset()
+    return 0
+end
+
+return SongMetadata

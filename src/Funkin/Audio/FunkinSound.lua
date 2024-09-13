@@ -137,7 +137,7 @@ function FunkinSound:playMusic(key, params)
     end
 
     if params.mapTimeChanges then
-        local songMusicData = SongRegistry.parseMusicData(key)
+        local songMusicData = SongRegistry:parseMusicData(key)
         if songMusicData ~= nil then
             Conductor:mapTimeChanges(songMusicData)
         else

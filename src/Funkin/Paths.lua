@@ -109,6 +109,22 @@ function Paths.music(key)
     return Paths.getPath("music/" .. key .. ".ogg")
 end
 
+---@param song string song name
+---@param suffix string suffix
+---@return string the path to the inst file
+function Paths.inst(song, suffix)
+    local ext = Constants.EXT_SOUND
+    return Paths.getPath("songs/" .. string.lower(song) .. "/Inst" .. suffix .. "." .. ext)
+end
+
+---@param song string song name
+---@param suffix string suffix
+---@return string the path to the voices file
+function Paths.voices(song, suffix)
+    local ext = Constants.EXT_SOUND
+    return Paths.getPath("songs/" .. string.lower(song) .. "/Voices" .. suffix .. "." .. ext)
+end
+
 ---@param key string image path
 ---@return string the path to the image file
 --- Returns the path to the image file

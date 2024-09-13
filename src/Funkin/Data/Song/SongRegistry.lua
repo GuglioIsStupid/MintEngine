@@ -1,6 +1,5 @@
 ---@class SongRegistry : BaseRegistry
 local SongRegistry = BaseRegistry:extend()
-
 SongRegistry.generic = Song
 
 function SongRegistry:loadEntries()
@@ -28,25 +27,54 @@ function SongRegistry:loadEntries()
     end
 end
 
-function SongRegistry.parseMusicData(id, variation)
+function SongRegistry:parseMusicData(id, variation)
     local variation = variation or Constants.DEFAULT_VARIATION
-
-    local jsonData = SongRegistry.loadMusicDataFile(id, variation)
-
+    local jsonData = SongRegistry:loadMusicDataFile(id, variation)
     local data = Json.decode(jsonData.contents)
 
     return data
 end
 
-function SongRegistry.loadMusicDataFile(id, variation)
+function SongRegistry:loadMusicDataFile(id, variation)
     local variation = variation or Constants.DEFAULT_VARIATION
-
     local entryFilePath = Paths.file("music/" .. id .. "/" .. id .. "-metadata" .. (variation == Constants.DEFAULT_VARIATION and "" or ("-" .. variation)) .. ".json")
-
     return {
         fileName = entryFilePath,
         contents = love.filesystem.read(entryFilePath)
     }
+end
+
+function SongRegistry:loadEntryMetadataFile(id, variation)
+    local variation = variation or Constants.DEFAULT_VARIATION
+
+    local entryFilePath = Paths.file("data/songs/" .. id .. "/" .. id .. "-metadata" .. (variation == Constants.DEFAULT_VARIATION and "" or ("-" .. variation)) .. ".json")
+    print(entryFilePath)
+    return {
+        fileName = entryFilePath,
+        contents = love.filesystem.read(entryFilePath)
+    }
+end
+
+function SongRegistry:fetchEntryMetadataVersion(id, variation)
+    local variation = variation or Constants.DEFAULT_VARIATION
+    local jsonData = SongRegistry:loadEntryMetadataFile(id, variation)
+    local data = Json.decode(jsonData.contents)
+
+    return data.version
+end
+
+function SongRegistry:parseEntryMetadata(id, variation)
+    local variation = variation or Constants.DEFAULT_VARIATION
+    local jsonData = SongRegistry:loadEntryMetadataFile(id, variation)
+    local data = Json.decode(jsonData.contents)
+
+    return data
+end
+
+function SongRegistry:parseEntryMetadataWithMigration(id, variation, version)
+    local variation = variation or Constants.DEFAULT_VARIATION
+
+    return self:parseEntryMetadata(id, variation)
 end
 
 return SongRegistry
