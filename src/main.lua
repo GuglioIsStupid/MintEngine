@@ -34,7 +34,17 @@ function love.load()
     table.insert(Camera._defaultCameras, Camera(0, 0, 1280, 720))
     Game:add(Camera._defaultCameras[1])
 
-    Game:switchState(TitleState())
+    SongRegistry:loadEntries()
+
+    Paths.setCurrentLevel("week1")
+    local songData = SongRegistry:fetchEntry("bopeebo")
+    print(songData)
+    local params = {
+        targetSong = songData,
+        targetDifficulty = "hard"
+    }
+    print(songData)
+    Game:switchState(PlayState(params))
 end 
 
 function love.update(dt)

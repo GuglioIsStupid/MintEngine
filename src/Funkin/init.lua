@@ -8,11 +8,18 @@ Constants = r("util.Constants")
 Paths = r("Paths")
 Conductor = r("Conductor")
 
-SongRegistry = r("Data.Song.SongRegistry")
+DataAssets = r("Util.Assets.DataAssets")
+
+BaseRegistry = r("Data.BaseRegistry")
+SongRegistry = r("Data.Song.SongRegistry")()
+
+SoundGroup = r("Audio.SoundGroup")
+VoicesGroup = r("Audio.VoicesGroup")
 FunkinSound = r("Audio.FunkinSound")()
 
 MusicBeatState = r("UI.MusicBeatState")
 
-TitleState = r("Title.TitleState")
+SongMetadata, SongTimeChange, SongOffsets = r("Data.Song.SongData")
 
-SongMetadata, SongTimeChange = r("Data.Song.SongData")
+TitleState = r("Title.TitleState")
+PlayState = r("Play.PlayState")

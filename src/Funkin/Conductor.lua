@@ -136,6 +136,7 @@ Conductor.onBeatHit:add(Conductor.dispatchBeatHit, Conductor)
 Conductor.onStepHit:add(Conductor.dispatchStepHit, Conductor)
 Conductor.onMeasureHit:add(Conductor.dispatchMeasureHit, Conductor)
 
+---@param bpm? (float|nil)
 function Conductor:forceBPM(bpm)
     if bpm ~= nil then
         print("FORCING BPM TO " .. bpm)

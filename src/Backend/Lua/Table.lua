@@ -160,3 +160,32 @@ function table.addToFirstIndex(tbl, value)
 
     return tbl
 end
+
+---Filters a table
+---@param tbl table
+---@param callback function
+---@return table
+function table.filter(tbl, callback)
+    local newTable = {}
+    for _, v in pairs(tbl) do
+        if callback(v) then
+            table.insert(newTable, v)
+        end
+    end
+
+    return newTable
+end
+
+---Slice a table
+---@param tbl table
+---@param first number
+---@param last number
+---@return table
+function table.slice(tbl, first, last)
+    local sliced = {}
+    for i = first or 1, last or #tbl do
+        sliced[#sliced + 1] = tbl[i]
+    end
+
+    return sliced
+end

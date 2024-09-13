@@ -86,4 +86,9 @@ function SoundManager.destroy(force)
 	end)
 end
 
+---@param path string
+function SoundManager.cache(path)
+	SoundManager.load(path, false)
+end
+
 return SoundManager

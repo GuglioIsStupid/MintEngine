@@ -3,6 +3,7 @@ Camera = Object:extend()
 Camera.res = 1
 
 Camera._defaultCameras = {}
+Camera.defaultZoom = 1
 
 ---@param x number
 ---@param y number
