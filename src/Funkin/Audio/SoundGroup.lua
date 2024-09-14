@@ -7,6 +7,8 @@ function SoundGroup:new()
     self.muted = false
     self.pitch = 1
     self.playing = true
+
+    Group.new(self)
 end
 
 ---@deprecated Use add() instead")
@@ -21,7 +23,7 @@ function SoundGroup:build(song, files)
     end
 
     for _, sndFile in ipairs(files) do
-        local snd = FunkinSound.load(Paths.voices(song, sndFile))
+        local snd = FunkinSound:load(Paths.voices(song, sndFile))
         result:add(snd)
     end
 
@@ -77,7 +79,7 @@ end
 
 function SoundGroup:play(forceRestart, startTime, endTime)
     self:forEachAlive(function(snd)
-        snd:play(forceRestart, startTime or 1, endTime)
+        snd:play(forceRestart, startTime or 0, endTime)
     end)
 end
 

@@ -13,6 +13,7 @@ DataAssets = r("Util.Assets.DataAssets")
 BaseRegistry = r("Data.BaseRegistry")
 SongMetadata = r("Data.Song.SongData")
 Song, SongDifficulty = r("Play.Song.Song")
+VersionUtil = r("Util.VersionUtil")
 SongRegistry = r("Data.Song.SongRegistry")()
 
 SoundGroup = r("Audio.SoundGroup")

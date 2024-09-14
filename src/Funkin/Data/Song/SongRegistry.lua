@@ -68,13 +68,46 @@ function SongRegistry:parseEntryMetadata(id, variation)
     local jsonData = SongRegistry:loadEntryMetadataFile(id, variation)
     local data = Json.decode(jsonData.contents)
 
-    return data
+    return self:cleanMetadata(data, variation)
 end
 
+function SongRegistry:parseEntryMetadata_v2_1_0(id, variation)
+    local variation = variation or Constants.DEFAULT_VARIATION
+    local jsonData = SongRegistry:loadEntryMetadataFile(id, variation)
+    local data = Json.decode(jsonData.contents)
+
+    return self:cleanMetadata(data, variation)
+end
+
+function SongRegistry:parseEntryMetadata_v2_0_0(id, variation)
+    local variation = variation or Constants.DEFAULT_VARIATION
+    local jsonData = SongRegistry:loadEntryMetadataFile(id, variation)
+    local data = Json.decode(jsonData.contents)
+
+    return self:cleanMetadata(data, variation)
+end
+
+local SONG_METADATA_VERSION_RILE = "2.2.x"
 function SongRegistry:parseEntryMetadataWithMigration(id, variation, version)
     local variation = variation or Constants.DEFAULT_VARIATION
 
-    return self:parseEntryMetadata(id, variation)
+    if SONG_METADATA_VERSION_RILE == nil or VersionUtil:validateVersion(version, SONG_METADATA_VERSION_RILE) then
+        return self:parseEntryMetadata(id, variation)
+    elseif VersionUtil:validateVersion(version, "2.1.x") then
+        return self:parseEntryMetadata_v2_1_0(id, variation)
+    elseif VersionUtil:validateVersion(version, "2.0.x") then
+        return self:parseEntryMetadata_v2_0_0(id, variation)
+    else
+        return self:parseEntryMetadata(id, variation)
+    end
+
+    --[[ return self:parseEntryMetadata(id, variation) ]]
+end
+
+function SongRegistry:cleanMetadata(data, variation)
+    data.variation = variation
+
+    return data
 end
 
 return SongRegistry

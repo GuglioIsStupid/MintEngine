@@ -60,6 +60,7 @@ function Sound:cleanup()
 			self.source--[[@as love.Object]]:release()
 		end
 	end
+	print("FUCK Y OUUUUUUUUUUUU")
 	self.paused = true
 	self.isFinishedB = false
 	self.isSource = false

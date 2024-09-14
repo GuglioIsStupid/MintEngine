@@ -52,7 +52,7 @@ function PlayState:new(params)
     self.cameraTweensPausedBySubState = false
     self.initialized = false
 
-    self.vocals = {}
+    self.vocals = VoicesGroup()
 
     self.isGamePaused = false
     self.isExitingViaPauseMenu = false
@@ -72,13 +72,13 @@ function PlayState:new(params)
     if params.targetInstrumental then
         self.currentInstrumental = params.targetInstrumental
     end
-    self.isPracticeMode = params.isPracticeMode
-    self.isBotPlayMode = params.isBotPlayMode
-    self.isMinimalMode = params.isMinimalMode
-    self.startTimestamp = params.startTimestamp
-    self.playbackRate = params.playbackRate
-    self.overrideMusic = params.overrideMusic
-    self.previousCameraFollowPoint = params.cameraFollowPoint
+    self.isPracticeMode = params.isPracticeMode or false
+    self.isBotPlayMode = params.isBotPlayMode or false
+    self.isMinimalMode = params.isMinimalMode or false
+    self.startTimestamp = params.startTimestamp or 0
+    self.playbackRate = params.playbackRate or 1
+    self.overrideMusic = params.overrideMusic or false
+    self.previousCameraFollowPoint = params.cameraFollowPoint or Object(0, 0)
 
     MusicBeatState.new(self)
 end
@@ -104,9 +104,8 @@ function PlayState:create()
         Conductor.instrumentalOffset = chart.offsets--[[ :getInstrumentalOffset() ]]
     end
 
-    print(chart.timeChanges)
-    Conductor.mapTimeChanges(chart.timeChanges)
-    Conductor.update((Conductor.get_beatLengthMs() * -5) + self.startTimestamp)
+    Conductor:mapTimeChanges(chart)
+    Conductor:update((Conductor.get_beatLengthMs() * -5) + self.startTimestamp)
 
     self:initCameras()
     self:initHealthbar()
@@ -118,7 +117,10 @@ function PlayState:create()
 
     self:initPreciseInputs()
 
+    self:generateSong()
+
     self.startingSong = true
+    self.isInCountdown = true
 
     if ((self.currentSong and self.currentSong.id or ""):lower() == "winter-horrorland") then
 
@@ -167,6 +169,116 @@ function PlayState:initCameras()
     
 
     
+end
+
+function PlayState:initHealthbar()
+
+end
+
+function PlayState:initStage()
+    self:loadStage(self:get_currentStageId())
+end
+
+function PlayState:initCharacters()
+
+end
+
+function PlayState:initStrumlines()
+
+end
+
+function PlayState:initPreciseInputs()
+
+end
+
+function PlayState:loadStage(id)
+    self.currentStage = SongRegistry:fetchEntry(id)
+
+    if self.currentStage ~= nil then
+        self.currentStage:revive()
+
+        self:resetCameraZoom()
+
+        self:add(self.currentStage)
+    else
+        print("Failed to load stage " .. id)
+    end
+end
+
+function PlayState:resetCameraZoom()
+    self.currentCameraZoom = self:get_stageZoom()
+    Game._cameras[1].zoom = self.currentCameraZoom
+
+    self.cameraBopMultiplier = 1
+end
+
+function PlayState:startCountdown()
+    self.isInCutscene = false
+    self.camHUD.visible = true
+end
+
+function PlayState:update(dt)
+    MusicBeatState.update(self, dt)
+
+    if self.startingSong then
+        if self.isInCountdown then
+            Conductor:update(Conductor.songPosition + dt * 1000, false)
+            if Conductor.songPosition >= self.startTimestamp then
+                self:startSong()
+            end
+        end
+    end
+end
+
+function PlayState:startSong()
+    self.startingSong = false
+
+    local chart = self:get_currentChart()
+    if not self.overrideMusic and not self.isGamePaused and chart ~= nil then
+        chart:playInst(1.0, self.currentInstrumental, false)
+    end
+
+    if Game.sound.music == nil then
+        print("Failed to start song")
+        return
+    end
+
+    print("Starting song " .. self.currentSong.id .. " on difficulty " .. self.currentDifficulty)
+
+    Game.sound.music.onComplete = function()
+        print("Song ended")
+    end
+
+    Game.sound.music:play(true, (self.startTimestamp) / 1000)
+    Game.sound.music.pitch = self.playbackRate
+
+    Game.sound.music.volume = 1
+    if Game.sound.music.fadeTween then Game.sound.music.fadeTween:cancel() end
+
+    self:add(self.vocals)
+    self.vocals:play()
+    self.vocals.volume = 1 
+    self.vocals.pitch = self.playbackRate
+    --[[ self:resyncVocals() ]]
+end
+
+function PlayState:generateSong()
+    if self.currentCameraZoom == nil then
+        print("Song difficulty not loaded")
+    end
+
+    if not self.overrideMusic then
+        if self.vocals ~= nil then
+            self.vocals:stop()
+        end
+
+        self.vocals = self:get_currentChart():buildVocals()
+        if #self.vocals.members == 0 then
+            print("WARN: No vocals found for song")
+        end
+    end
+
+    self.generatedMusic = true
 end
 
 return PlayState

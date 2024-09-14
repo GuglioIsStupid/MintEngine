@@ -56,7 +56,7 @@ end
 
 function SongDifficulty:cacheInst(inst)
     inst = inst or ""
-    print(self:getInstPath(inst))
+    print(self:getInstPath(inst), "FUCK")
     Game.sound.cache(self:getInstPath(inst))
 end
 
@@ -66,7 +66,7 @@ function SongDifficulty:playInst(volume, inst, looped)
     looped = looped or false
 
     local suffix = inst ~= "" and "-" .. inst or ""
-    Game.sound.music = FunkinSound.load(Paths.inst(self.song.id, suffix), volume, looped, function() end, false)
+    Game.sound.music = FunkinSound:load(Paths.inst(self.song.id, suffix), volume, looped, function() end, false)
 
     Game.sound.list:remove(Game.sound.music)
 end
@@ -79,35 +79,18 @@ end
 
 function SongDifficulty:buildVoiceList()
     local suffix = self.variation ~= nil and self.variation ~= "" and self.variation ~= Constants.DEFAULT_VARIATION and "-" .. self.variation or ""
+    
 
     local playerId = self.characters.player
     local voicePlayer = Paths.voices(self.song.id, "-" .. playerId .. suffix)
-    while voicePlayer ~= nil and not love.filesystem.getInfo(voicePlayer) do
-        playerId = table.slice(playerId:split("-"), 1, -1)
-        local temp = ""
-        for i, v in ipairs(playerId) do
-            temp = temp .. v
-            if i < #playerId then
-                temp = temp .. "-"
-            end
-        end
-        playerId = temp
-        voicePlayer = playerId == "" and nil or Paths.voices(self.song.id, "-" .. playerId .. suffix)
+    while not love.filesystem.getInfo(voicePlayer) do
     end
 
     if voicePlayer == nil then
-        playerId = self.characters.player
+        playerId = self.characters.opponent
         voicePlayer = Paths.voices(self.song.id, "-" .. playerId)
         while voicePlayer ~= nil and not love.filesystem.getInfo(voicePlayer) do
-            playerId = table.slice(playerId:split("-"), 1, -1)
-            local temp = ""
-            for i, v in ipairs(playerId) do
-                temp = temp .. v
-                if i < #playerId then
-                    temp = temp .. "-"
-                end
-            end
-            playerId = temp
+            playerId = table.slice(playerId:split("-"), 1, -1):join("-")
             voicePlayer = playerId == "" and nil or Paths.voices(self.song.id, "-" .. playerId .. suffix)
         end
     end
@@ -150,17 +133,18 @@ function SongDifficulty:buildVocals()
         return result
     end
 
+    print("?????", voiceList[1])
     if voiceList[1] ~= nil then
-        result:addPlayerVoice(FunkinSound.load(voiceList[1]))
+        result:addPlayerVoice(FunkinSound:load(voiceList[1]))
     end
 
     if voiceList[2] ~= nil then
-        result:addOpponentVoice(FunkinSound.load(voiceList[2]))
+        result:addOpponentVoice(FunkinSound:load(voiceList[2]))
     end
 
     if #voiceList > 2 then
         for i = 3, #voiceList do
-            result:add(FunkinSound.load(voiceList[i]))
+            result:add(FunkinSound:load(voiceList[i]))
         end
     end
 
@@ -195,7 +179,7 @@ function Song:new(id)
             for _, variation in ipairs(self._data.playData.songVariations) do
                 local variMeta = self:fetchVariationMetadata(id, variation)
                 if variMeta then
-                    self._metadata[variation] = variMeta
+                    self._metadata[variMeta.variation] = variMeta
                     print("Metadata found for variation " .. variation .. " of song " .. id)
                 else
                     print("No metadata found for variation " .. variation .. " of song " .. id)
@@ -254,7 +238,7 @@ function Song:populateDifficulties()
             difficulty.timeChanges = metadata.timeChanges
             difficulty.looped = metadata.looped
             difficulty.generatedBy = metadata.generatedBy
-            difficulty.offsets = metadata.offsets or SongOffsets()
+            difficulty.offsets = SongOffsets()
 
             difficulty.difficultyRating = metadata.playData.ratings[diffId] or 0
             difficulty.album = metadata.playData.album

@@ -50,8 +50,6 @@ function love.update(dt)
     Game:update(dt)
     Game.sound.update(dt)
     FunkinSound:update(dt)
-
-    print("sex")
 end
 
 function love.draw()
