@@ -1,11 +1,12 @@
 local class = {
+  --[[
   _NAME = "Class",
   _VERSION = "1.0.0",
   _DESCRIPTION = "A simple class implementation",
   _CREATOR = "GuglioIsStupid",
   _LICENSE = [[
       MIT LICENSE
-  ]]
+  ]] -- No need to take up lua memory with this
 }
 
 class.__index = class
@@ -14,12 +15,19 @@ class.__ID = "Class: 0x0000000000000000"
 -- Recreate smth like "Table: 0x0000000000000000"
 local idChars = "0123456789abcdef"
 
----@description Creates a new instance of the class
+--- Creates a new instance of the class. To be called as: Class(...)
+--- ```lua
+--- local MyClass = Class()
+--- ```
 ---@param ... any
 ---@return any
 function class:new(...) end
 
----@description Creates a new class that extends the current class
+--- Creates a new class that extends the current class
+--- ```lua
+--- local MyClass = Class()
+--- local MySubClass = MyClass:extend()
+--- ```
 ---@return table --[[In reality, this is a table. But for the sake of the documentation, it's a class.]]
 function class:extend()
     local cls = {}
@@ -38,7 +46,12 @@ function class:extend()
     return cls
 end
 
----@description Implements a class into the current class
+--- Implements a class into the current class
+--- ```lua
+--- local MyClass = Class()
+--- local MySubClass = MyClass:extend()
+--- MySubClass:implement(SomeClass)
+--- ```
 ---@param ... table
 ---@return nil
 function class:implement(...) 
@@ -52,7 +65,12 @@ function class:implement(...)
     return nil
 end
 
----@description Checks if the current class is an instance of the given class
+--- Checks if the current class is an instance of the given class
+--- ```lua
+--- local MyClass = Class()
+--- local MySubClass = MyClass:extend()
+--- local inst = MySubClass()
+--- print(inst:isInstanceOf(MyClass)) -- true
 ---@param cls table
 ---@return boolean
 function class:isInstanceOf(cls)
@@ -64,13 +82,17 @@ function class:isInstanceOf(cls)
     return false
 end
 
----@description Returns the class ID
+--- Returns the class ID
 ---@return string
 function class:__tostring()
     return self.__ID
 end
 
----@description Creates a new instance of the class
+--- Creates a new instance of the class
+--- ```lua
+--- local MyClass = Class()
+--- local inst = MyClass()
+--- ```
 ---@param ... any
 ---@return any
 function class:__call(...)
