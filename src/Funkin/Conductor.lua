@@ -147,7 +147,7 @@ function Conductor:forceBPM(bpm)
 end
 
 function Conductor:update(songPos, applyOffsets, forceDispatch)
-    local songPos = songPos or Game.sound.music and Game.sound.music:getDuration() * 1000 or 0
+    local songPos = songPos or Game.sound.music and Game.sound.music:tell() * 1000 or 0
 
     songPos = songPos + (applyOffsets and (self.instrumentalOffset + self.formatOffset + self.audioVisualOffset) or 0)
 

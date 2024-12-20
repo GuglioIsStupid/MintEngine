@@ -88,7 +88,7 @@ function PlayState:create()
 
     self.cameraFollowPoint = Object(0, 0)
 
-    if not self.overrideMusic and Game.sound.music then 
+    if not self.overrideMusic and Game.sound.music then
         Game.sound.music:stop()
     end
 
@@ -119,6 +119,8 @@ function PlayState:create()
 
     self:generateSong()
 
+    self:resetCamera()
+    
     self.startingSong = true
     self.isInCountdown = true
 
@@ -131,6 +133,8 @@ function PlayState:create()
     MusicBeatState.create(self)
 
     self.initialized = true
+
+    self:refresh()
 end
 
 function PlayState:get_stageZoom()
@@ -207,9 +211,28 @@ end
 
 function PlayState:resetCameraZoom()
     self.currentCameraZoom = self:get_stageZoom()
-    Game._cameras[1].zoom = self.currentCameraZoom
+    --Game._cameras[1].zoom = self.currentCameraZoom
 
     self.cameraBopMultiplier = 1
+end
+
+function PlayState:resetCamera(resetZoom, cancelTweens, snap)
+    local resetZoom = resetZoom == nil and true or resetZoom
+    local cancelTweens = cancelTweens == nil and true or cancelTweens
+    local snap = snap == nil and true or snap
+
+    if cancelTweens then
+        --
+    end
+
+    --Game.camera.follow(self.cameraFollowPoint, 1, 1, 0, 0)
+    --Game.camera.targetOffset:set()
+
+    if resetZoom then
+        self:resetCameraZoom()
+    end
+    
+    --if snap then Game.camera.focusOn(self.cameraFollowPoint) end
 end
 
 function PlayState:startCountdown()
@@ -227,7 +250,37 @@ function PlayState:update(dt)
                 self:startSong()
             end
         end
+    else
+        Conductor:update(Conductor.songPosition + dt * 1000, false)
     end
+
+    -- if pause
+
+    if self.health > Constants.HEALTH_MAX then self.health = Constants.HEALTH_MAX end
+    if self.health < Constants.HEALTH_MIN then self.health = Constants.HEALTH_MIN end
+
+    if self.subState == nil and self.cameraZoomRate > 0 then
+        self.cameraBopMultiplier = math.lerp(1, self.cameraBopMultiplier, 0.95)
+        local zoomPlusBop = self.currentCameraZoom * self.cameraBopMultiplier
+        --Game.camera.zoom = zoomPlusBop
+        self.camHUD.zoom = math.lerp(self.defaultHUDCameraZoom, self.camHUD.zoom, 0.95)
+    end
+
+    if self.currentStage~= nil and self.currentStage:getBoyfriend() ~= nil then
+    end
+
+    if self.health <= Constants.HEALTH_MIN and not self.isPracticeMode and not self.isPlayerDying then
+    end
+
+    self:processSongEvents()
+    
+    self:processInputQueue()
+
+    if not self.isInCutscene then
+        self:processNotes(dt)
+    end
+
+    self.justUnpaused = false
 
     --[[ if Game.sound.music then
         if Game.sound.music.source then

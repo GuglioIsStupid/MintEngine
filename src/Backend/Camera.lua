@@ -58,6 +58,12 @@ function Camera:snapTo(object)
     self.scroll.y = object.y - self.height/2
 end
 
+---@param object Basic|Object|Sprite
+function Camera:focusOn(object)
+    self:follow(object)
+    self:snapTo(object)
+end
+
 ---@param width? number
 ---@param height? number
 ---@param res? number

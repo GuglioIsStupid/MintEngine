@@ -37,8 +37,8 @@ function MenuTypedList:resetItem(oldName, newName, callback)
     return item
 end
 
-function MenuTypedList:update(elapsed)
-    Group.update(self, elapsed)
+function MenuTypedList:update(dt)
+    Group.update(self, dt)
 
     if self.enabled and not self.busy then
         self:updateControls()

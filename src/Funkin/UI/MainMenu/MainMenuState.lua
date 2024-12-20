@@ -108,13 +108,13 @@ function MainMenuState:createMenuItem(name, atlas, callback, fireInstantly)
     self.menuItems:addItem(name, item)
 end
 
-function MainMenuState:update(elapsed)
-    MusicBeatState.update(self, elapsed)
+function MainMenuState:update(dt)
+    MusicBeatState.update(self, dt)
     
     Conductor:update(Game.sound.music:tell() * 1000)
 
     if Game.sound.music ~= nil and Game.sound.music.volume < 0.8 then
-        Game.sound.music.volume = math.min(Game.sound.music.volume + 0.5 * elapsed, 1) 
+        Game.sound.music.volume = math.min(Game.sound.music.volume + 0.5 * dt, 1) 
     end
 end
 

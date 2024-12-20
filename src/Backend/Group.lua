@@ -256,4 +256,12 @@ end
 function Group:getCameras()
 end
 
+---Resorts the members by z-index
+---@return nil
+function Group:refresh()
+    self:sort(function(a, b)
+        return a.zIndex or 0 < b.zIndex or 0
+    end)
+end
+
 return Group
