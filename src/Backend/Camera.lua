@@ -29,7 +29,9 @@ end
 
 function Camera:renderAllObjects()
     for i, object in ipairs(self.renders) do
-        object:render(self)
+        if object.render then
+            object:render(self)
+        end
         self.renders[i] = nil
     end
 end

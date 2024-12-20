@@ -44,7 +44,7 @@ function love.load()
         targetDifficulty = "hard"
     }
 
-    Game:switchState(TitleState(params))
+    Game:switchState(MainMenuState())
 end 
 
 function love.update(dt)

@@ -39,7 +39,7 @@ end
 
 ---@param x number
 ---@param y number
----@param graphic (string | love.Drawable)
+---@param graphic (string | love.Drawable)?
 function Sprite:new(x, y, graphic)
     Object.new(self, x, y)
 
@@ -129,12 +129,14 @@ function Sprite:addAnimByPrefix(name, prefix, framerate, looped)
 		looped = looped,
 		frames = {}
 	}, false
+
 	for _, f in ipairs(self.frames) do
 		if f.name:startsWith(prefix) then
 			foundFrame = true
 			table.insert(anim.frames, f)
 		end
 	end
+
 	if not foundFrame then return end
 
 	table.sort(anim.frames, sortFramesByIndices(prefix, ""))

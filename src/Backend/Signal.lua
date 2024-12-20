@@ -26,7 +26,7 @@ end
 
 function Signal:dispatch()
     for _, func in ipairs(self.functions) do
-        func[1](func[2])
+        if func[1] then func[1](func[2]) end
     end
 end
 

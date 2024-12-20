@@ -1,6 +1,6 @@
 ---@diagnostic disable: need-check-nil
 
-local SongDifficulty = Class:extend()
+SongDifficulty = Class:extend()
 
 function SongDifficulty:new(song, difficulty, variation)
     self.song = song
@@ -339,4 +339,4 @@ function Song:fetchVariationMetadata(id, variation)
     return meta
 end
 
-return Song, SongDifficulty
+return Song
