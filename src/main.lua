@@ -44,13 +44,16 @@ function love.load()
         targetDifficulty = "hard"
     }
 
-    Game:switchState(MainMenuState())
+    Game:switchState(PlayState(params))
 end 
 
 function love.update(dt)
     Game:update(dt)
     Game.sound.update(dt)
     FunkinSound:update(dt)
+
+    -- print the count of all playing sources
+    --print("Playing sources: " .. love.audio.getActiveSourceCount())
 end
 
 function love.draw()

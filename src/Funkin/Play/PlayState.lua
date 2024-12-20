@@ -228,6 +228,12 @@ function PlayState:update(dt)
             end
         end
     end
+
+    --[[ if Game.sound.music then
+        if Game.sound.music.source then
+            print(Game.sound.music.source:tell())
+        end
+    end ]]
 end
 
 function PlayState:startSong()
@@ -235,6 +241,7 @@ function PlayState:startSong()
 
     local chart = self:get_currentChart()
     if not self.overrideMusic and not self.isGamePaused and chart ~= nil then
+        print("Starting song " .. self.currentSong.id .. " on difficulty " .. self.currentDifficulty)
         chart:playInst(1.0, self.currentInstrumental, false)
     end
 
@@ -257,7 +264,7 @@ function PlayState:startSong()
 
     self:add(self.vocals)
     self.vocals:play()
-    self.vocals.volume = 1 
+    self.vocals.volume = 1
     self.vocals.pitch = self.playbackRate
     --[[ self:resyncVocals() ]]
 end

@@ -46,7 +46,7 @@ function MainMenuState:create()
 
     self.menuItems = MenuTypedList(AtlasMenuItem)
     self:add(self.menuItems)
-    self.menuItems.onChange:add(onMenuItemChange)
+    self.menuItems.onChange:add(self.onMenuItemChange)
     self.menuItems.onAcceptPress:add(function(_)
         --Flicker
     end)
@@ -55,6 +55,22 @@ function MainMenuState:create()
 
     self:createMenuItem("storymode", "mainmenu/storymode", function()
         self:startExistState(StoryMenuState)
+    end)
+
+    self:createMenuItem("freeplay", "mainmenu/freeplay", function()
+    
+    end)
+
+    self:createMenuItem("merch", "mainmenu/merch", function()
+    
+    end, love.system.getOS() ~= "Web")
+
+    self:createMenuItem("options", "mainmenu/options", function()
+    
+    end)
+
+    self:createMenuItem("credits", "mainmenu/credits", function()
+        love.event.quit()
     end)
 
     local spacing = 160
@@ -74,11 +90,10 @@ end
 
 function MainMenuState:playMenuMusic()
     FunkinSound:playMusic("freakyMenu", {
-        startingVolume = 0,
+        persist = true,
         overrideExisting = true,
         restartTrack = false
     })
-	Game.sound.music:fade(4, 0, 1)
 end
 
 function MainMenuState:createMenuItem(name, atlas, callback, fireInstantly)
@@ -91,6 +106,24 @@ function MainMenuState:createMenuItem(name, atlas, callback, fireInstantly)
     item:changeAnim("idle")
 
     self.menuItems:addItem(name, item)
+end
+
+function MainMenuState:update(elapsed)
+    MusicBeatState.update(self, elapsed)
+    
+    Conductor:update(Game.sound.music:tell() * 1000)
+
+    if Game.sound.music ~= nil and Game.sound.music.volume < 0.8 then
+        Game.sound.music.volume = math.min(Game.sound.music.volume + 0.5 * elapsed, 1) 
+    end
+end
+
+function MainMenuState:resetCamStuff(snap)
+    local snap = snap == nil and true or snap
+
+    Game.camera:follow(self.camFollow, nil, 0.06)
+
+    if snap then Game.camera:snapToTarget() end
 end
 
 return MainMenuState

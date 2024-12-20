@@ -1,16 +1,23 @@
 ---@class FunkinSound : Sound
 FunkinSound = Sound:extend()
-
+FunkinSound.pool = Group()
 FunkinSound.MAX_VOLUME = 1
 
 function FunkinSound:new()
     Sound.new(self)
 
-    self.pool = Group()
     self.muted = false
     self._shouldPlay = false
     self._time = 0
+end
+
+function FunkinSound.construct()
+    local sound = FunkinSound()
+
+    FunkinSound.pool:add(sound)
+    Game.sound.list:add(sound)
     
+    return sound
 end
 
 ---@param dt number
@@ -47,7 +54,7 @@ function FunkinSound:play(forceRestart, startTime, endTime)
     if not self.exists then return self end
 
     if forceRestart then
-        self:cleanup()
+        --self:cleanup()
     elseif self:isPlaying() then
         return self
     end
@@ -164,9 +171,11 @@ function FunkinSound:playMusic(key, params)
     self:play()
 end
 
-function FunkinSound:load(sound, volume, looped, autoDestroy, autoPlay, onComplete, onLoad)
-    local sound = Sound.load(self, sound, autoDestroy, onComplete)
-    self.volume = volume or 1
+function FunkinSound:load(soundPath, volume, looped, autoDestroy, autoPlay, onComplete, onLoad)
+    local sound = FunkinSound.pool:recycle(FunkinSound.construct)
+    Sound.load(sound, soundPath, autoDestroy, onComplete)
+    sound.volume = volume or 1
+    sound.volume = 1
     Game.sound.list:add(sound)
     sound.loop = looped
     sound:setLooping(looped)

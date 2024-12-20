@@ -112,7 +112,7 @@ function Group:recycle(objectClass, objectFactory, force)
             return self:add(objectClass())
         end
 
-        return nil
+        return self:add(Basic())
     end
 
     if self.maxSize > 0 then

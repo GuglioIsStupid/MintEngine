@@ -97,6 +97,12 @@ end
 ---@return any
 function class:__call(...)
     local inst = setmetatable({}, self)
+    -- also extend it
+    for k, v in pairs(self) do
+        if k:find("__") == 1 then
+            inst[k] = v
+        end
+    end
     inst:new(...)
     inst.__ID = "Class: 0x"
     for _ = 1, 4 do

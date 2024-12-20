@@ -21,7 +21,7 @@ end
 ---@param cleanup boolean
 function Sound:reset(cleanup)
     if cleanup then
-		self:cleanup()
+		--self:cleanup()
 	elseif self.source ~= nil then
 		self:stop()
 	end
@@ -55,6 +55,7 @@ function Sound:cleanup()
 	self.onComplete = nil
 
 	if self.source ~= nil then
+		print("DONT???")
 		self:stop()
 		if self.isSource and self.source.release then
 			self.source--[[@as love.Object]]:release()
@@ -82,7 +83,6 @@ end
 ---@param onComplete function
 function Sound:load(asset, autoDestroy, onComplete)
 	if asset == nil then return end
-	self:cleanup()
 
 	self.isSource = type(asset) ~= "userdata"
 	self.source = self.isSource and love.audio.newSource(asset, "stream") or asset
@@ -222,7 +222,9 @@ function Sound:setVolume(volume)
 end
 
 function Sound:getActualVolume()
-	return self.volume * (Game.sound.mute and 0 or 1) * (Game.sound.volume or 1)
+	local vol = self.volume
+	if type(vol) ~= "number" then self.volume = 1; vol = 1 end
+	return vol * (Game.sound.mute and 0 or 1) * (Game.sound.volume or 1)
 end
 
 function Sound:getVolume() return self.volume end

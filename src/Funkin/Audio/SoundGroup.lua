@@ -23,6 +23,7 @@ function SoundGroup:build(song, files)
     end
 
     for _, sndFile in ipairs(files) do
+        print("Loading sound: " .. sndFile)
         local snd = FunkinSound:load(Paths.voices(song, sndFile))
         result:add(snd)
     end

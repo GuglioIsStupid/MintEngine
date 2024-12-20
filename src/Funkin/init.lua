@@ -18,7 +18,7 @@ SongRegistry = r("Data.Song.SongRegistry")()
 
 SoundGroup = r("Audio.SoundGroup")
 VoicesGroup = r("Audio.VoicesGroup")
-FunkinSound = r("Audio.FunkinSound")()
+FunkinSound = r("Audio.FunkinSound")
 
 MenuTypedList = r("UI.MenuList")
 AtlasMenuItem = r("UI.AtlasMenuList")

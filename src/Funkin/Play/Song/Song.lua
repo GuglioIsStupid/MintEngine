@@ -66,6 +66,7 @@ function SongDifficulty:playInst(volume, inst, looped)
     looped = looped or false
 
     local suffix = inst ~= "" and "-" .. inst or ""
+    print(Paths.inst(self.song.id, suffix), "HIII")
     Game.sound.music = FunkinSound:load(Paths.inst(self.song.id, suffix), volume, looped, function() end, false)
 
     Game.sound.list:remove(Game.sound.music)
@@ -133,7 +134,6 @@ function SongDifficulty:buildVocals()
         return result
     end
 
-    print("?????", voiceList[1])
     if voiceList[1] ~= nil then
         result:addPlayerVoice(FunkinSound:load(voiceList[1]))
     end
