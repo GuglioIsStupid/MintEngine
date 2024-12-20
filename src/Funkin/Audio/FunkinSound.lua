@@ -168,7 +168,7 @@ function FunkinSound:playMusic(key, params)
     Game.sound.music.volume = params.startingVolume or 1
     Game.sound.music:setVolume()
 
-    self:play()
+    music:play()
 end
 
 function FunkinSound:load(soundPath, volume, looped, autoDestroy, autoPlay, onComplete, onLoad)
