@@ -341,4 +341,74 @@ function PlayState:generateSong()
     self.generatedMusic = true
 end
 
+function PlayState:processSongEvents()
+    if self.songEvents ~= nil and #self.songEvents > 0 then
+        --local songEventsToActivate = SongEventRegistry.queryEvents(self.songEvents, Conductor.songPosition)
+
+        
+    end
+end
+
+function PlayState:processInputQueue()
+    if #self.inputPressQueue + #self.inputReleaseQueue == 0 then 
+        return
+    end
+
+    if self.isInCutscene or self.disableKeys then
+        self.inputPressQueue = {}
+        self.inputReleaseQueue = {}
+        return
+    end
+
+    local notesInRange = {}
+    local holdNotesInRange = {}
+
+    local notesByDirection = {{}, {}, {}, {}}
+
+    for i, note in ipairs(notesInRange) do
+        table.insert(notesByDirection[note.direction+1], note)
+    end
+
+    while #self.inputPressQueue > 0 do
+        local input = table.shift(self.inputPressQueue)
+
+        --self.playerStrumline:pressKey(input.noteDirection)
+
+        if self.isBotPlayMode then 
+            goto continue
+        end
+
+        local notesInDirection = notesByDirection[input.noteDirection+1]
+
+        if #notesInDirection == 0 then
+            --self:ghostNoteMiss(input.noteDirection, #notesInRange > 0)
+
+            --self.playerStrumline:playPress(input.noteDirection)
+        else
+            --var targetNote:Null<NoteSprite> = notesInDirection.find((note) -> !note.lowPriority);
+            local targetNote = nil
+            for i, note in ipairs(notesInDirection) do
+                if not note.lowPriority then
+                    targetNote = note
+                    break
+                end
+            end
+
+            --self:goodNoteHit(targetNote, input)
+
+            --self.playerStrumline:playConfirm(input.noteDirection)
+        end
+
+        ::continue::
+    end
+
+    while #self.inputReleaseQueue > 0 do
+        local input = table.shift(self.inputReleaseQueue)
+
+        --self.playerStrumline:playStatic(input.noteDirection)
+
+        --self.playerStrumline:releaseKey(input.noteDirection)
+    end
+end
+
 return PlayState

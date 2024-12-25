@@ -189,3 +189,16 @@ function table.slice(tbl, first, last)
 
     return sliced
 end
+
+---Shifts a table
+---@param tbl table
+---@return any
+function table.shift(tbl)
+    local first = tbl[1]
+    for i = 1, #tbl - 1 do
+        tbl[i] = tbl[i + 1]
+    end
+    tbl[#tbl] = nil
+
+    return first
+end
