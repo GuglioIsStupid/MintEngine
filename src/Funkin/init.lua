@@ -28,3 +28,5 @@ MusicBeatState = r("UI.MusicBeatState")
 TitleState = r("UI.Title.TitleState")
 MainMenuState = r("UI.MainMenu.MainMenuState")
 PlayState = r("Play.PlayState")
+
+r("Modding.Events.ScriptEvent")

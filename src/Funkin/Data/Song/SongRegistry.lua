@@ -2,6 +2,9 @@
 local SongRegistry = BaseRegistry:extend()
 SongRegistry.generic = Song
 
+local SONG_CHART_DATA_VERSION_RULE = "2.0.x"
+local SONG_METADATA_VERSION_RULE = "2.2.x"
+
 function SongRegistry:loadEntries()
     self:clearEntries()
 
@@ -87,11 +90,11 @@ function SongRegistry:parseEntryMetadata_v2_0_0(id, variation)
     return self:cleanMetadata(data, variation)
 end
 
-local SONG_METADATA_VERSION_RILE = "2.2.x"
 function SongRegistry:parseEntryMetadataWithMigration(id, variation, version)
     local variation = variation or Constants.DEFAULT_VARIATION
 
-    if SONG_METADATA_VERSION_RILE == nil or VersionUtil:validateVersion(version, SONG_METADATA_VERSION_RILE) then
+    print("RULE", SONG_METADATA_VERSION_RULE, version)
+    if SONG_METADATA_VERSION_RULE == nil or VersionUtil:validateVersion(version, SONG_METADATA_VERSION_RULE) then
         return self:parseEntryMetadata(id, variation)
     elseif VersionUtil:validateVersion(version, "2.1.x") then
         return self:parseEntryMetadata_v2_1_0(id, variation)
@@ -102,6 +105,64 @@ function SongRegistry:parseEntryMetadataWithMigration(id, variation, version)
     end
 
     --[[ return self:parseEntryMetadata(id, variation) ]]
+end
+
+function SongRegistry:fetchEntryChartVersion(id, variation)
+    variation = variation or Constants.DEFAULT_VARIATION
+    local entryStr = SongRegistry:loadEntryChartFile(id, variation).contents
+    local entryVersion = VersionUtil:getVersionFromJSON(entryStr)
+
+    return entryVersion
+end
+
+function SongRegistry:loadEntryChartFile(id, variation)
+    local variation = variation and variation.variation or Constants.DEFAULT_VARIATION
+    local entryFilePath = Paths.file("data/songs/" .. id .. "/" .. id .. "-chart" .. (variation == Constants.DEFAULT_VARIATION and "" or ("-" .. variation)) .. ".json")
+    if not love.filesystem.getInfo(entryFilePath) then
+        return nil
+    end
+
+    local rawJson = love.filesystem.read(entryFilePath)
+    if rawJson == nil then
+        return nil
+    end
+
+    return {
+        fileName = entryFilePath,
+        contents = rawJson
+    }
+end
+
+function SongRegistry:parseEntryChartDataWithMigration(id, variation, version)
+    variation = variation or Constants.DEFAULT_VARIATION
+
+    if VersionUtil:validateVersion(version, SONG_CHART_DATA_VERSION_RULE, true) then
+        return self:parseEntryChartData(id, variation)
+    else
+        return self:parseEntryChartData(id, variation)
+    end
+end
+
+function SongRegistry:parseEntryChartData(id, variation)
+    variation = variation or Constants.DEFAULT_VARIATION
+
+    local jsonData = SongRegistry:loadEntryChartFile(id, variation)
+    if jsonData == nil then
+        return nil
+    end
+
+    local data = Json.decode(jsonData.contents)
+
+    local real = SongChartData(data.scrollSpeed, data.events, data.notes)
+    real.version = data.version
+
+    return self:cleanChartData(real, variation)
+end
+
+function SongRegistry:cleanChartData(data, variation)
+    data.variation = variation
+
+    return data
 end
 
 function SongRegistry:cleanMetadata(data, variation)

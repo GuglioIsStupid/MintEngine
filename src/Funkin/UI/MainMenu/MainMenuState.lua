@@ -54,7 +54,7 @@ function MainMenuState:create()
     self.menuItems.enabled = true
 
     self:createMenuItem("storymode", "mainmenu/storymode", function()
-        self:startExistState(StoryMenuState)
+        self:startExitState(StoryMenuState)
     end)
 
     self:createMenuItem("freeplay", "mainmenu/freeplay", function()

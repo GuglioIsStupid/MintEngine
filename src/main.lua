@@ -39,6 +39,7 @@ function love.load()
     Paths.setCurrentLevel("week1")
     local songData = SongRegistry:fetchEntry("bopeebo")
     print(songData)
+    songData:cacheCharts()
     local params = {
         targetSong = songData,
         targetDifficulty = "hard"

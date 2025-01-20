@@ -1,37 +1,40 @@
 local VersionUtil = {}
 
 -- rule is like this: "2.1.x"
-local function satisfyVersion(raw, rule)
+-- meaning everything up to .x is valid
+-- so. 2.1.4 is valid, 2.1.2 is valid, 2.0.3 is not
+local function satisfyVersion(raw, rule, debug)
     local version = raw
-    local versionRule = rule
-
+    local ruleParts = rule:split(".")
     local versionParts = version:split(".")
-    local ruleParts = versionRule:split(".")
-
+    if debug then
+        print("rule", rule)
+        print("version", version)
+        print("ruleParts", table.concat(ruleParts, ", "))
+        print("versionParts", table.concat(versionParts, ", "))
+    end
     for i = 1, #ruleParts do
-        local rulePart = ruleParts[i]
-        local versionPart = versionParts[i]
-
-        if rulePart == "x" then
-            return true
+        if ruleParts[i] == "x" then
+            if debug then
+                print("ruleParts[i] == x")
+            end
+            break
         end
-
-        if rulePart == "x" and versionPart == nil then
-            return false
-        end
-
-        if rulePart ~= versionPart then
+        if ruleParts[i] ~= versionParts[i] then
             return false
         end
     end
 
+    if debug then
+        print("satisfyVersion", true)
+    end
     return true
 end
 
-function VersionUtil:validateVersion(version, versionRule)
+function VersionUtil:validateVersion(version, versionRule, debug)
     local ok, err = pcall(function()
         local versionRaw = version
-        return satisfyVersion(versionRaw, versionRule)
+        return satisfyVersion(versionRaw, versionRule, debug)
     end)
 
     if not ok then

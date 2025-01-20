@@ -93,7 +93,11 @@ end
 function table.copy(table)
     local newTable = {}
     for k, v in pairs(table) do
-        newTable[k] = v
+        if type(v) == "table" then
+            newTable[k] = table.copy(v)
+        else
+            newTable[k] = v
+        end
     end
 
     return newTable

@@ -261,17 +261,74 @@ function Song:populateDifficulties()
         end
     end
 end
+
+function Song:cacheCharts(force)
+    if force then
+        self:clearCharts()
+    end
+
+    table.print(self)
+    table.print(self._metadata)
+    for _, variation in pairs(self._metadata) do
+        local version = SongRegistry:fetchEntryChartVersion(self.id, variation)
+        if version == nil then
+            goto continue
+        end
+        local chart = SongRegistry:parseEntryChartDataWithMigration(self.id, variation, version)
+        if chart == nil then
+            goto continue
+        end
+        self:applyChartData(chart, variation)
+        ::continue::
+    end
+end
+
+function Song:applyChartData(chartData, variation)
+    for diffId, chartNotes in pairs(chartData.notes) do
+        local nullDiff = self:getDifficulty(diffId, variation)
+
+        local difficulty = nullDiff or SongDifficulty(self, diffId, variation)
+
+        if nullDiff == nil then
+            local metadata = self._metadata[variation]
+            local d = self.difficulties[variation]
+            if d then
+                d:set(diffId, difficulty)
+            end
+
+            if metadata ~= nil then
+                difficulty.songName = metadata.songName
+                difficulty.songArtist = metadata.artist
+                difficulty.charter = metadata.charter or Constants.DEFAULT_CHARTER
+                difficulty.timeFormat = metadata.timeFormat
+                difficulty.divisions = metadata.divisions
+                difficulty.timeChanges = metadata.timeChanges
+                difficulty.looped = metadata.looped
+                difficulty.generatedBy = metadata.generatedBy
+                difficulty.offsets = metadata.offsets or SongOffsets()
+
+                difficulty.stage = metadata.playData.stage
+                difficulty.noteStyle = metadata.playData.noteStyle
+
+                difficulty.characters = metadata.playData.characters
+            end
+        end
+
+        difficulty.notes = chartNotes or {}
+        difficulty.scrollSpeed = chartData:getScrollSpeed(diffId) or 1.0
+
+        difficulty.events = chartData.events
+    end
+end
   
 function Song:getDifficulty(diffId, variation, variations)
     diffId = diffId or self:listDifficulties(variation, variations)[1]
     variation = variation or Constants.DEFAULT_VARIATION
     variations = variations or {variation}
-    print(diffId)
 
     for _, currentVariation in pairs(variations) do
         if not currentVariation or currentVariation == "default" then currentVariation = Constants.DEFAULT_VARIATION end
-        local variationSuffix = currentVariation ~= Constants.DEFAULT_VARIATION and "-" .. currentVariation or ""
-        print(print(diffId .. variationSuffix))
+        local variationSuffix = currentVariation ~= Constants.DEFAULT_VARIATION and "-" .. currentVariation.variation or ""
         if self.difficulties[diffId .. variationSuffix] then
             return self.difficulties[diffId .. variationSuffix]
         end

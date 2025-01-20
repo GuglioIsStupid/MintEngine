@@ -338,7 +338,54 @@ function PlayState:generateSong()
         end
     end
 
+    self:regenNoteData()
+
     self.generatedMusic = true
+end
+
+function PlayState:dispatchEvent(event)
+
+end
+
+function PlayState:regenNoteData(startTime)
+    startTime = startTime or 0
+
+    local currentChart = self:get_currentChart()
+    local event = SongLoadScriptEvent(currentChart.song.id, currentChart.difficulty, table.copy(currentChart.notes)--[[ , table.copy(currentChart:getEvents() ]])
+
+    self:dispatchEvent(event)
+
+    local builtNoteData = event.notes
+    local builtEventData = event.events
+
+    self.songEvents = builtEventData
+    --SongEventRegistry:resetEvents(self.songEvents)
+
+    local playerNoteData = {}
+    local opponentNoteData = {}
+
+    for i, songNote in ipairs(builtNoteData) do
+        local strumTime = songNote.time
+        if strumTime < startTime then goto continue end
+
+        local noteData = songNote:getDirection()
+        local playerNote = true
+
+        if noteData > 3 then
+            playerNote = false
+        end
+
+        local strumIndex = songNote:getStrumlineIndex()
+        if strumIndex == 0 then
+            table.insert(playerNoteData, songNote)
+        elseif strumIndex == 1 then
+            table.insert(opponentNoteData, songNote)
+        end
+        ::continue::
+    end
+
+    --self.playerStrumline:applyNoteData(playerNoteData)
+    --self.opponentStrumline:applyNoteData(opponentNoteData)
 end
 
 function PlayState:processSongEvents()
@@ -410,5 +457,90 @@ function PlayState:processInputQueue()
         --self.playerStrumline:releaseKey(input.noteDirection)
     end
 end
+
+function PlayState:processNotes(dt)
+    if not self.playerStrumline or not self.playerStrumline.notes or not self.playerStrumline.notes.members then
+        return
+    end
+    if not self.opponentStrumline or not self.opponentStrumline.notes or not self.opponentStrumline.notes.members then
+        return
+    end
+
+    for i, note in ipairs(self.opponentStrumline.notes.members) do
+        if note == nil then
+            goto continue
+        end
+
+        local hitWindowStart = note.strumTime + Conductor.inputOffset - Constants.HIT_WINDOW_MS
+        local hitWindowCenter = note.strumTime + Conductor.inputOffset
+        local hitWindowEnd = note.strumTime + Conductor.inputOffset + Constants.HIT_WINDOW_MS
+
+        if Conductor.songPosition > hitWindowEnd then
+            if note.hasMissed or note.hasBeenHit then goto continue end
+
+            note.tooEarly = false
+            note.mayHit = false
+            note.hasMissed = true
+
+            if note.holdNoteSprite ~= nil then
+                note.holdNoteSprite.missedNote = false
+            end
+
+            ::continue::
+        elseif Conductor.songPosition > hitWindowCenter then
+            if note.hasBeenHit then goto continue end
+
+            local event = --[[ HitNoteScriptEvent(note, 0, 0, 'perfect', false, 0) ]] {}
+
+            if event.eventCancelled then goto continue end
+
+            self.opponentStrumline:hitNote(note)
+
+            if note.holdNoteSprite then
+                self.opponentStrumline:playNoteHoldCover(note.holdNoteSprite)
+            end
+            
+            ::continue::
+        elseif Conductor.songPosition > hitWindowStart then
+            if note.hasBeenHit or note.hasMissed then goto continue end
+
+            note.tooEarly = false
+            note.mayHit = true
+            note.hasMissed = false
+            if note.holdNoteSprite then
+                note.holdNoteSprite.missedNote = false
+            end
+
+            ::continue::
+        else
+            note.tooEarly = true
+            note.mayHit = false
+            note.hasMissed = false
+            if note.holdNoteSprite then
+                note.holdNoteSprite.missedNote = false
+            end
+        end
+
+        ::continue::
+    end
+
+    for i, holdNote in ipairs(self.opponentStrumline.holdNotes.members) do
+        if holdNote == nil or not holdNote.alive then goto continue end
+
+        if holdNote.hitNote and not holdNote.missedNote and holdNote.sustainLength > 0 then
+            if self.currentStage ~= nil and self.currentStage:getDad() ~= nil and self.currentStage:getDad():isSinging() then
+                self.currentStage:getDad().holdTimer = 0
+            end
+        end
+
+        if holdNote.missedNote and not holdNote.handledMiss then
+            holdNote.handledMiss = true
+            self.currentStage:getOpponent():playSingAnimation(holdNote.noteData:getDirection(), true)
+        end
+
+        ::continue::
+    end
+end
+
 
 return PlayState
