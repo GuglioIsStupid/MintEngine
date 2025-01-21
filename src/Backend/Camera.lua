@@ -118,4 +118,15 @@ function Camera:draw()
     end
 end
 
+function Camera:applyTransform()
+    local x, y, w, h = self:getInfo()
+    local sx, sy = self.scale:get()
+    local halfW, halfH = w/2, h/2
+
+    love.graphics.translate(halfW + x, halfH + y)
+    love.graphics.scale(self.zoom * sx, self.zoom * sy)
+    love.graphics.rotate(math.rad(self.angle + self.rotation))
+    love.graphics.translate(-halfW, -halfH)
+end
+
 return Camera

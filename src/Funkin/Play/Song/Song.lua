@@ -386,7 +386,7 @@ function Song:_fetchData(id)
     local data = SongRegistry:parseEntryMetadataWithMigration(id, Constants.DEFAULT_VARIATION, version)
     return data
 end
-  
+
 function Song:fetchVariationMetadata(id, variation)
     local version = SongRegistry:fetchEntryMetadataVersion(id, variation)
     if version == nil then

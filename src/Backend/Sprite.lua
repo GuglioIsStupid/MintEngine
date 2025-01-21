@@ -53,6 +53,8 @@ function Sprite:new(x, y, graphic)
 
     self.offset = Point()
 
+	self.cameras = {}
+
     if graphic then
         self:load(graphic)
     end
@@ -271,8 +273,21 @@ function Sprite:update(dt)
     end
 end
 
+function Sprite:draw()
+	if #self.cameras <= 0 then
+		self:render(Camera._defaultCameras[1])
+	end
+	for _, camera in ipairs(self.cameras) do
+		self:render(camera)
+	end
+end
+
 ---@param camera Camera
 function Sprite:render(camera)
+	love.graphics.push()
+
+	camera:applyTransform()
+
     local lastColor = {love.graphics.getColor()}
     local blend, alphaMode = love.graphics.getBlendMode()
 
@@ -296,6 +311,8 @@ function Sprite:render(camera)
     else
         love.graphics.draw(self.graphic, curFrame.quad, x, y, rot, sx, sy, ox, oy)
     end
+	
+	love.graphics.pop()
 end
 
 return Sprite

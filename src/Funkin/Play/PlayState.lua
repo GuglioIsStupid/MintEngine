@@ -170,9 +170,9 @@ end
 
 function PlayState:initCameras()
     self.camHUD = Camera()
-    
 
-    
+
+
 end
 
 function PlayState:initHealthbar()
@@ -188,7 +188,21 @@ function PlayState:initCharacters()
 end
 
 function PlayState:initStrumlines()
+    local currentChart = self:get_currentChart()
+    local noteStyleID = currentChart.noteStyle or "default"
+    local noteStyle = noteStyleID
 
+    self.playerStrumline = Strumline(noteStyle, not self.isBotPlayMode)
+    --self.playerStrumline.onNoteIncoming:add(self.onStrumlineNoteIncoming)
+    self.opponentStrumline = Strumline(noteStyle, self.isBotPlayMode)
+
+    self:add(self.playerStrumline)
+    self:add(self.opponentStrumline)
+
+    self.playerStrumline.x = Game.width / 2 + Constants.STRUMLINE_X_OFFSET
+    self.playerStrumline.y = Constants.STRUMLINE_Y_OFFSET
+    self.playerStrumline.zIndex = 1001
+    self.playerStrumline.cameras = {self.camHUD}
 end
 
 function PlayState:initPreciseInputs()

@@ -11,7 +11,7 @@ if love_VerMajor == 12 and love_VerCodename == "" then
 end
 
 function love.conf(t)
-    t.window.title = "Mint Engine" .. (
+    t.window.title = "Friday Night Funkin'" .. (
         DEBUG and
         (
             " | DEBUG | " .. love_VerMajor .. "." .. love_VerMinor .. "." .. love_VerRevision .. " (" .. love_VerCodename .. ")" .. 
