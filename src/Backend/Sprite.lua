@@ -55,6 +55,8 @@ function Sprite:new(x, y, graphic)
 
 	self.cameras = {}
 
+	self.alpha = 1
+
     if graphic then
         self:load(graphic)
     end
@@ -83,6 +85,8 @@ function Sprite:play(anim, force, frame)
 		self.animPaused = false
 		return
 	end
+
+	if not self.anims then return end
 
 	curAnim = self.anims[anim]
 	if curAnim then
@@ -209,6 +213,14 @@ function Sprite:getFrameDimensions()
     return self:getFrameWidth(), self:getFrameHeight()
 end
 
+function Sprite:getCurrentAnimation()
+	return self.curAnim.name
+end
+
+function Sprite:getAnimByName(name)
+	return self.anims[name]
+end
+
 ---@param width number
 ---@param height number
 function Sprite:setGraphicSize(width, height)
@@ -273,12 +285,16 @@ function Sprite:update(dt)
     end
 end
 
-function Sprite:draw()
-	if #self.cameras <= 0 then
-		self:render(Camera._defaultCameras[1])
-	end
-	for _, camera in ipairs(self.cameras) do
-		self:render(camera)
+function Sprite:draw(forcedCamera)
+	if not forcedCamera then
+		if #self.cameras <= 0 then
+			self:render(Camera._defaultCameras[1])
+		end
+		for _, camera in ipairs(self.cameras) do
+			self:render(camera)
+		end
+	else
+		self:render(forcedCamera)
 	end
 end
 

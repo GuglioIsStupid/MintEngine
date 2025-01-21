@@ -28,4 +28,19 @@ function BaseRegistry:createEntry(id)
     return self.generic and self.generic(id) or BaseRegistry(id)
 end
 
+function BaseRegistry:loadEntryFile(id)
+    local entryFilePath = Paths.json(self.dataFilePath .. "/" .. id)
+    local rawjson = love.filesystem.read(entryFilePath)
+    return {
+        fileName = entryFilePath,
+        contents = rawjson
+    }
+end
+
+function BaseRegistry:fetchEntryVersion(id)
+    local entryStr = self:loadEntryFile(id).contents
+    local entryVersion = VersionUtil.getVersionFromJSON(entryStr)
+    return entryVersion
+end
+
 return BaseRegistry

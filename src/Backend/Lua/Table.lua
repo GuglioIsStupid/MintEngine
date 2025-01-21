@@ -90,14 +90,10 @@ end
 ---Copies a table
 ---@param table table
 ---@return table
-function table.copy(table)
+function table.copy(tbl)
     local newTable = {}
-    for k, v in pairs(table) do
-        if type(v) == "table" then
-            newTable[k] = table.copy(v)
-        else
-            newTable[k] = v
-        end
+    for k, v in pairs(tbl) do
+        newTable[k] = v
     end
 
     return newTable

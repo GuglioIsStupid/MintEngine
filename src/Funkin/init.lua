@@ -15,6 +15,7 @@ SongMetadata = r("Data.Song.SongData")
 Song = r("Play.Song.Song")
 VersionUtil = r("Util.VersionUtil")
 SongRegistry = r("Data.Song.SongRegistry")()
+NoteStyleRegistry = r("Data.Notestyle.NoteStyleRegistry")()
 
 SoundGroup = r("Audio.SoundGroup")
 VoicesGroup = r("Audio.VoicesGroup")
@@ -28,5 +29,11 @@ MusicBeatState = r("UI.MusicBeatState")
 TitleState = r("UI.Title.TitleState")
 MainMenuState = r("UI.MainMenu.MainMenuState")
 PlayState = r("Play.PlayState")
+
+FunkinSprite = r("Graphics.FunkinSprite")
+
+NoteDirection = r("Play.Notes.NoteDirection")
+Strumline = r("Play.Notes.Strumline")
+StrumlineNote = r("Play.Notes.StrumlineNote")
 
 r("Modding.Events.ScriptEvent")

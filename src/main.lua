@@ -45,7 +45,7 @@ function love.load()
         targetDifficulty = "hard"
     }
 
-    Game:switchState(TitleState(params))
+    Game:switchState(PlayState(params))
 
     love.audio.setVolume(0.1)
 end 

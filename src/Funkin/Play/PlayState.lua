@@ -203,6 +203,11 @@ function PlayState:initStrumlines()
     self.playerStrumline.y = Constants.STRUMLINE_Y_OFFSET
     self.playerStrumline.zIndex = 1001
     self.playerStrumline.cameras = {self.camHUD}
+
+    self.opponentStrumline.x = Constants.STRUMLINE_X_OFFSET
+    self.opponentStrumline.y = Constants.STRUMLINE_Y_OFFSET
+    self.opponentStrumline.zIndex = 1000
+    self.opponentStrumline.cameras = {self.camHUD}
 end
 
 function PlayState:initPreciseInputs()

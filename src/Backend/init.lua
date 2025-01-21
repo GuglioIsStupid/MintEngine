@@ -27,5 +27,6 @@ Container = r("Container")
 State = r("State")
 TransitionableState = r("TransitionableState")
 Sprite = r("Sprite")
+SpriteGroup = r("SpriteGroup")
 
 Sound = r("Sound")
