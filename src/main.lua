@@ -40,6 +40,7 @@ function love.load()
     local songData = SongRegistry:fetchEntry("bopeebo")
     print(songData)
     songData:cacheCharts()
+    print(#songData.difficulties["hard"].notes)
     local params = {
         targetSong = songData,
         targetDifficulty = "hard"

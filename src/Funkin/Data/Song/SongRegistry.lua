@@ -51,7 +51,6 @@ function SongRegistry:loadEntryMetadataFile(id, variation)
     local variation = variation or Constants.DEFAULT_VARIATION
 
     local entryFilePath = Paths.file("data/songs/" .. id .. "/" .. id .. "-metadata" .. (variation == Constants.DEFAULT_VARIATION and "" or ("-" .. variation)) .. ".json")
-    print(entryFilePath)
     return {
         fileName = entryFilePath,
         contents = love.filesystem.read(entryFilePath)
@@ -93,7 +92,6 @@ end
 function SongRegistry:parseEntryMetadataWithMigration(id, variation, version)
     local variation = variation or Constants.DEFAULT_VARIATION
 
-    print("RULE", SONG_METADATA_VERSION_RULE, version)
     if SONG_METADATA_VERSION_RULE == nil or VersionUtil:validateVersion(version, SONG_METADATA_VERSION_RULE) then
         return self:parseEntryMetadata(id, variation)
     elseif VersionUtil:validateVersion(version, "2.1.x") then

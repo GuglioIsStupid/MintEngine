@@ -4,6 +4,7 @@ local VersionUtil = {}
 -- meaning everything up to .x is valid
 -- so. 2.1.4 is valid, 2.1.2 is valid, 2.0.3 is not
 local function satisfyVersion(raw, rule, debug)
+    debug = false
     local version = raw
     local ruleParts = rule:split(".")
     local versionParts = version:split(".")

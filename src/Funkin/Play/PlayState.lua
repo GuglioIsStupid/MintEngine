@@ -63,6 +63,7 @@ function PlayState:new(params)
     self.BACKGROUND_COLOR = {0, 0, 0, 1}
 
     self.currentSong = params.targetSong
+    print(#self.currentSong.difficulties["hard"].notes)
     if params.targetDifficulty then
         self.currentDifficulty = params.targetDifficulty
     end
@@ -147,6 +148,7 @@ end
 
 function PlayState:get_currentChart()
     if not self.currentSong or not self.currentDifficulty then
+        print("No song or difficulty")
         return {}
     end
 
@@ -376,6 +378,8 @@ function PlayState:regenNoteData(startTime)
 
     local builtNoteData = event.notes
     local builtEventData = event.events
+
+    print("Regenerating note data", #builtNoteData)
 
     self.songEvents = builtEventData
     --SongEventRegistry:resetEvents(self.songEvents)

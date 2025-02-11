@@ -180,9 +180,6 @@ function Song:new(id)
                 local variMeta = self:fetchVariationMetadata(id, variation)
                 if variMeta then
                     self._metadata[variMeta.variation] = variMeta
-                    print("Metadata found for variation " .. variation .. " of song " .. id)
-                else
-                    print("No metadata found for variation " .. variation .. " of song " .. id)
                 end
             end
         end
@@ -267,8 +264,6 @@ function Song:cacheCharts(force)
         self:clearCharts()
     end
 
-    table.print(self)
-    table.print(self._metadata)
     for _, variation in pairs(self._metadata) do
         local version = SongRegistry:fetchEntryChartVersion(self.id, variation)
         if version == nil then
@@ -286,16 +281,15 @@ end
 function Song:applyChartData(chartData, variation)
     for diffId, chartNotes in pairs(chartData.notes) do
         local nullDiff = self:getDifficulty(diffId, variation)
-
         local difficulty = nullDiff or SongDifficulty(self, diffId, variation)
-
+    
         if nullDiff == nil then
             local metadata = self._metadata[variation]
             local d = self.difficulties[variation]
             if d then
                 d:set(diffId, difficulty)
             end
-
+    
             if metadata ~= nil then
                 difficulty.songName = metadata.songName
                 difficulty.songArtist = metadata.artist
@@ -306,19 +300,19 @@ function Song:applyChartData(chartData, variation)
                 difficulty.looped = metadata.looped
                 difficulty.generatedBy = metadata.generatedBy
                 difficulty.offsets = metadata.offsets or SongOffsets()
-
+    
                 difficulty.stage = metadata.playData.stage
                 difficulty.noteStyle = metadata.playData.noteStyle
-
                 difficulty.characters = metadata.playData.characters
             end
         end
-
+    
         difficulty.notes = chartNotes or {}
         difficulty.scrollSpeed = chartData:getScrollSpeed(diffId) or 1.0
-
+    
         difficulty.events = chartData.events
     end
+    
 end
   
 function Song:getDifficulty(diffId, variation, variations)
